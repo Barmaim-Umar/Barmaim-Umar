@@ -396,6 +396,7 @@ class TrafficReportPrintFunction{
       widgets2213.add(table);
     }
       print('ListWidgets; ${widgets2213[0]}');
+      print('ListWidgets; ${widgets2213[0]}');
     pdf.addPage(
 
       pw.MultiPage(
@@ -403,7 +404,7 @@ class TrafficReportPrintFunction{
 
           return pw.Container(
               decoration:  pw.BoxDecoration(
-                  border: pw.Border.fromBorderSide(pw.BorderSide()),
+                  border: pw.Border.all(color: PdfColors.black,),
               ),
             width: double.infinity,
               alignment:pw.Alignment.topCenter,
