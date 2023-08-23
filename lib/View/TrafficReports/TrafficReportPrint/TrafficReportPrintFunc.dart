@@ -1,8 +1,12 @@
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+
+
 
 class TrafficReportPrintFunction{
 
@@ -139,9 +143,10 @@ class TrafficReportPrintFunction{
                     children: [
                       // for (int i = 0; i < trafficReport['vehicle_Maintanance'].length; i++)
                       pw.Padding(
-                        padding: const pw.EdgeInsets.all(2.0),
+                        padding: const pw.EdgeInsets.all(5.0),
                         child: pw.Wrap(
-                            children: List.generate(50, (index) => pw.Text("${printData[0][0][index].toString()}, "),)
+                          runSpacing: 10,
+                            children: List.generate(100, (index) => pw.Text("${printData[0][0][index].toString()},  "),)
                         ),
                       ),
                     ],
@@ -400,19 +405,60 @@ class TrafficReportPrintFunction{
     pdf.addPage(
 
       pw.MultiPage(
-        header: (context) {
-
-          return pw.Container(
-
-              decoration:  pw.BoxDecoration(
-                  border: pw.Border.all(color: PdfColors.black,),
-              ),
-            width: double.infinity,
-              alignment:pw.Alignment.topCenter,
-              child:pw.Text("PUSHPAK FREIGHT CARRIER ",style: pw.TextStyle(fontSize: 20,fontWeight: pw.FontWeight.bold))
-          );
-
-        },
+          header: (context) {
+            return pw.Column(
+              children: [
+                pw.Padding(
+                  padding: pw.EdgeInsets.all(20),
+                  child: pw.Container(
+                    alignment: pw.Alignment.topCenter,
+                    decoration: pw.BoxDecoration(
+                      border: pw.Border(
+                        bottom: pw.BorderSide(
+                          color: PdfColors.blue,  // Change this color as needed
+                          width: 2,              // Change this width as needed
+                        ),
+                      ),
+                    ),
+                    child: pw.Text(
+                      'PUSHPAK FREIGHT CARRIER',
+                      style: pw.TextStyle(
+                        color: PdfColors.blue,
+                        fontSize: 20,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+                // pw.SizedBox(height: 5), // Add spacing between the container and the new text
+                // pw.Text(
+                //   'Traffic Report',
+                //   style: pw.TextStyle(
+                //     color: PdfColors.black, // You can change the color
+                //     fontSize: 16,
+                //     fontWeight: pw.FontWeight.normal,
+                //   ),
+                // ),
+              ],
+            );
+          },
+          footer: (context) {
+            final now = DateTime.now();
+            final formattedDate = "${now.year}-${now.month}-${now.day}";
+            return pw.Row(
+              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+              children: [
+                pw.Text(
+                  formattedDate,
+                  style: pw.TextStyle(fontSize: 12),
+                ),
+                pw.Text(
+                  'Page ${context.pageNumber}',
+                  style: pw.TextStyle(fontSize: 12),
+                ),
+              ],
+            );
+          },
           build: (context) => [widgets2213[0]]
       ),
     );
