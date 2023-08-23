@@ -396,13 +396,14 @@ class TrafficReportPrintFunction{
       widgets2213.add(table);
     }
       print('ListWidgets; ${widgets2213[0]}');
-      print('ListWidgets; ${widgets2213[0]}');
+
     pdf.addPage(
 
       pw.MultiPage(
         header: (context) {
 
           return pw.Container(
+
               decoration:  pw.BoxDecoration(
                   border: pw.Border.all(color: PdfColors.black,),
               ),
