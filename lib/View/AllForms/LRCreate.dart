@@ -72,6 +72,7 @@ class _LRCreateState extends State<LRCreate> with Utility {
     lrListApi().then((source) {
       var info = jsonDecode(source);
       if (info['success'] == true) {
+        print("rr4r4: $info");
         lrList.addAll(info['data']);
          setStateMounted(() {
           freshLoad = 0;
@@ -825,14 +826,14 @@ class _LRCreateState extends State<LRCreate> with Utility {
       'from_location': fromLocation.text,
       'to_location': toLocation.text,
       'lr_type': lrTypeDropdownValue == 'Pushpak' ? '0' : '1',
-      'unloaded_date': loadingDate.text,
-      'expected_date': expectedDate.text,
+      'unloaded_date': loadingDateDateApi.text,
+      'expected_date': expectedDateDateApi.text,
       'no_of_pallets': pallets.text,
       'multipoint_load_unloading': groupValue.toString(),
       'expected_total_kms': totalKms.text,
       'lr_remark': remark.text
     };
-
+    print(body);
     var response = await http.post(url, headers: headers, body: body);
     return response.body.toString();
   }

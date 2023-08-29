@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:pfc/View/AllForms/UpdateBillDetails%20&%20LRList/UpdateBillDetailsAndLRList.dart';
 import 'package:pfc/utility/Widgets/DateFieldWidget2.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
@@ -243,29 +244,38 @@ class _OutstandingBillsState extends State<OutstandingBills> with Utility {
                                 PointerDeviceKind.mouse,
                                 PointerDeviceKind.trackpad
                               }),
-                          child: PaginatedDataTable(
-                            columns: const [
-                              DataColumn(label: Text('Bill No')),
-                              DataColumn(label: Text('Ledger/Customer')),
-                              DataColumn(label: Text('Vehicle')),
-                              DataColumn(label: Text('LR Number')),
-                              DataColumn(label: Text('Total Freight Amount')),
-                              DataColumn(label: Text('Outstanding Amount')),
-                              DataColumn(label: Text('Due Date')),
-                              DataColumn(label: Text('Type')),
-                              DataColumn(label: Text('Billing Date')),
-                              DataColumn(label: Text('Billed By')),
-                              DataColumn(label: Text('Action')),
-                            ],
-                            source: data,
-                            showCheckboxColumn: false,
-                            columnSpacing: 50,
-                            horizontalMargin: 10,
-                            rowsPerPage: int.parse(entriesDropdownValue),
-                            showFirstLastButtons: true,
-                            sortAscending: true,
-                            sortColumnIndex: 0,
-                          ),
+                          child:SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              // width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
+                              child: buildDataTable(),
+                            ),
+                          )
+                          ,
+
+                          // PaginatedDataTable(
+                          //   columns: const [
+                          //     DataColumn(label: Text('Bill No')),
+                          //     DataColumn(label: Text('Ledger/Customer')),
+                          //     DataColumn(label: Text('Vehicle')),
+                          //     DataColumn(label: Text('LR Number')),
+                          //     DataColumn(label: Text('Total Freight Amount')),
+                          //     DataColumn(label: Text('Outstanding Amount')),
+                          //     DataColumn(label: Text('Due Date')),
+                          //     DataColumn(label: Text('Type')),
+                          //     DataColumn(label: Text('Billing Date')),
+                          //     DataColumn(label: Text('Billed By')),
+                          //     DataColumn(label: Text('Action')),
+                          //   ],
+                          //   source: data,
+                          //   showCheckboxColumn: false,
+                          //   columnSpacing: 50,
+                          //   horizontalMargin: 10,
+                          //   rowsPerPage: int.parse(entriesDropdownValue),
+                          //   showFirstLastButtons: true,
+                          //   sortAscending: true,
+                          //   sortColumnIndex: 0,
+                          // ),
                         )
                       ],
                     ))),
@@ -274,6 +284,102 @@ class _OutstandingBillsState extends State<OutstandingBills> with Utility {
       ),
     );
   }
+
+  // DataTable
+  Widget buildDataTable() {
+    double totalDebit = 0;
+    double totalCredit = 0;
+    return
+      /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
+    Container(
+
+      child: DataTable(
+          columnSpacing: 55,
+          columns: const [
+            DataColumn(label: Text('Bill No',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Ledger/Customer',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Vehicle',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('LR Number',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Total Freight Amount',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Outstanding Amount',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Due Date',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Type',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Billing Date',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Billed By',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Action',overflow: TextOverflow.ellipsis,)),
+          ],
+          rows:  List.generate(100, (index) {
+
+            // Calculate totals
+            // if (transactionList[0][index]['debit'] != null) {
+            //   totalDebit += double.parse( transactionList[0][index]['debit'] == '' ? '0' : transactionList[0][index]['debit'] );
+            // }
+            // if (transactionList[0][index]['credit'] != null) {
+            //   totalCredit += double.parse(transactionList[0][index]['credit'] == '' ? '0' : transactionList[0][index]['credit']);
+            // }
+            return DataRow(
+                color: index == 0 || index % 2 == 0? MaterialStatePropertyAll(ThemeColors.tableRowColor) : const MaterialStatePropertyAll(Colors.white),
+                cells: [
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Row(
+                    children: [
+                      UiDecoration().actionButton( ThemeColors.editColor,IconButton(
+                          padding: const EdgeInsets.all(0),onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => const UpdateBillDetailsAndLRList(),));
+                      }, icon: const Icon(Icons.edit, size: 15, color: Colors.white,))),
+                      const SizedBox(width: 4),
+                      UiDecoration().actionButton( ThemeColors.primary, IconButton(
+                          padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(CupertinoIcons.info, size: 15, color: Colors.white,))),
+                      const SizedBox(width: 4),
+                      UiDecoration().actionButton( ThemeColors.orangeColor, IconButton(
+                          padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.print_outlined, size: 15, color: Colors.white,))),
+                      const SizedBox(width: 4),
+                      UiDecoration().actionButton( ThemeColors.darkBlueColor, IconButton(
+                          padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.menu, size: 15, color: Colors.white,))),
+                      const SizedBox(width: 4),
+                      UiDecoration().actionButton( ThemeColors.deleteColor, IconButton(
+                          padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.delete, size: 15, color: Colors.white,))),
+                    ],
+                    )),
+
+                ]);
+          })
+          //     +[
+          //   DataRow(cells: [
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //     DataCell(
+          //       Text(
+          //         'Total Debit: $totalDebit',
+          //         style: const TextStyle(fontWeight: FontWeight.bold),
+          //       ),
+          //     ),
+          //     DataCell(
+          //       Text(
+          //         'Total Credit: $totalCredit',
+          //         style: const TextStyle(fontWeight: FontWeight.bold),
+          //       ),
+          //     ),
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //   ],
+          //   ),
+          // ]
+      ),
+    );
+  }
+
 }
 
 class MyData extends DataTableSource {
@@ -309,8 +415,10 @@ class MyData extends DataTableSource {
         DataCell(Text(_data[index]['billed_by'].toString())),
         DataCell(Row(
           children: [
-            UiDecoration().actionButton( ThemeColors.editColor,IconButton(
-                padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.edit, size: 15, color: Colors.white,))),
+            // UiDecoration().actionButton( ThemeColors.editColor,IconButton(
+            //     padding: const EdgeInsets.all(0),onPressed: () {
+            //   Navigator.push(context, MaterialPageRoute(builder: (context) => const UpdateBillDetailsAndLRList(),));
+            // }, icon: const Icon(Icons.edit, size: 15, color: Colors.white,))),
             const SizedBox(width: 3),
             UiDecoration().actionButton( ThemeColors.primary, IconButton(
                 padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(CupertinoIcons.info, size: 15, color: Colors.white,))),

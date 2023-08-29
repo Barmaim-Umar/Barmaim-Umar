@@ -145,7 +145,7 @@ class TrafficReportPrintFunction{
                       pw.Padding(
                         padding: const pw.EdgeInsets.all(5.0),
                         child: pw.Wrap(
-                          runSpacing: 10,
+                          runSpacing: 5,
                             children: List.generate(100, (index) => pw.Text("${printData[0][0][index].toString()},  "),)
                         ),
                       ),
@@ -159,21 +159,21 @@ class TrafficReportPrintFunction{
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8.0),
                 child: pw.Text(
-                  'Vehicle Without Driver ({trafficReport[',
+                  'Vehicle Without Driver 150',
                   style: pw.TextStyle(color: PdfColors.brown, fontSize: 16, fontWeight: pw.FontWeight.bold),
                 ),
               ),
               pw.Padding(
                 padding: const pw.EdgeInsets.all(8.0),
                 child: pw.Wrap(
-                  spacing: 5,
-                  runSpacing: 5, // Adjust the vertical spacing between items as needed
+                  spacing: 10,
+                  runSpacing: 10, // Adjust the vertical spacing between items as needed
                   children: [
                     // for (int i = 0; i < trafficReport['vehicle_without_driver'].length; i++)
                     pw.Text(
-                      'MH209376,'*200,
+                      'MH209376, '*100,
                       style: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold,
+                        fontWeight: pw.FontWeight.normal,
                       ),
                     ),
                   ],

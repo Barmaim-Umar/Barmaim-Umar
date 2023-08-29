@@ -217,9 +217,9 @@ class _TrafficReportPrintState extends State<TrafficReportPrint> with Utility {
                         spacing: 5,
                         runSpacing: 5, // Adjust the vertical spacing between items as needed
                         children: [
-                          for (int i = 0; i < trafficReport['vehicle_Maintanance'].length; i++)
+                          for (int i = 0; i < 100; i++)
                             Padding(
-                              padding: const EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(5.0),
                               child: Text(
                                 trafficReport['vehicle_Maintanance'][i]['vehicle_number'],
                                 style: TextStyle(color: Colors.black,
@@ -248,10 +248,14 @@ class _TrafficReportPrintState extends State<TrafficReportPrint> with Utility {
                         runSpacing: 5, // Adjust the vertical spacing between items as needed
                         children: [
                           for (int i = 0; i < trafficReport['vehicle_without_driver'].length; i++)
-                            Text(
-                              trafficReport['vehicle_without_driver'][i]['vehicle_number']+',',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                            Padding(
+                              padding: const EdgeInsets.all(5.0),
+                              child: Text(
+                                trafficReport['vehicle_without_driver'][i]['vehicle_number']+',',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black
+                                ),
                               ),
                             ),
                         ],
