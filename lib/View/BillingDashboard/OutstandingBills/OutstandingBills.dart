@@ -250,8 +250,7 @@ class _OutstandingBillsState extends State<OutstandingBills> with Utility {
                               // width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
                               child: buildDataTable(),
                             ),
-                          )
-                          ,
+                          ),
 
                           // PaginatedDataTable(
                           //   columns: const [

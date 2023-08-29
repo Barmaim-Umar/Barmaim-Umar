@@ -533,27 +533,15 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                                 PointerDeviceKind.mouse,
                                 PointerDeviceKind.trackpad
                               }),
-                          child: PaginatedDataTable(
-                            columns: const [
-                              DataColumn(label: Text('Mark')),
-                              DataColumn(label: Text('LR No.')),
-                              DataColumn(label: Text('Ledger')),
-                              DataColumn(label: Text('Vehicle No.')),
-                              DataColumn(label: Text('From Location')),
-                              DataColumn(label: Text('To Location')),
-                              DataColumn(label: Text('LR Date')),
-                              DataColumn(label: Text('Received Date')),
-                              DataColumn(label: Text('Scanned')),
-                            ],
-                            source: data,
-                            showCheckboxColumn: false,
-                            columnSpacing: 100,
-                            horizontalMargin: 10,
-                            rowsPerPage: int.parse(entriesDropdownValue),
-                            showFirstLastButtons: true,
-                            sortAscending: true,
-                            sortColumnIndex: 0,
+                          child:Container(
+                            color: Colors.teal,
+                            width: double.maxFinite,
+                            // width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
+                            child: SingleChildScrollView(
+                                child: buildDataTable()),
                           ),
+
+
                         ),
                       ],
                     ))),
@@ -561,6 +549,80 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
         ),
       ),
     );
+  }
+  Widget buildDataTable() {
+    double totalDebit = 0;
+    double totalCredit = 0;
+    return
+      /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
+      DataTable(
+          columnSpacing: 55,
+          columns: const [
+            DataColumn(label: Text('Mark',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('LR No ',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Ledger',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('vehicle No',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('From Location',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('TO Location',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('LR Date',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Received Date',overflow: TextOverflow.ellipsis,)),
+            DataColumn(label: Text('Scanned',overflow: TextOverflow.ellipsis,)),
+
+          ],
+          rows:  List.generate(100, (index) {
+
+            // Calculate totals
+            // if (transactionList[0][index]['debit'] != null) {
+            //   totalDebit += double.parse( transactionList[0][index]['debit'] == '' ? '0' : transactionList[0][index]['debit'] );
+            // }
+            // if (transactionList[0][index]['credit'] != null) {
+            //   totalCredit += double.parse(transactionList[0][index]['credit'] == '' ? '0' : transactionList[0][index]['credit']);
+            // }
+            return DataRow(
+                color: index == 0 || index % 2 == 0? MaterialStatePropertyAll(ThemeColors.tableRowColor) : const MaterialStatePropertyAll(Colors.white),
+                cells: [
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(Text("data")),
+                  DataCell(ElevatedButton(
+                    style: ButtonStyles.customiseButton(
+                        ThemeColors.primary, ThemeColors.whiteColor, 70.0, 35.0),
+                    onPressed: () {},
+                    child: const Text('Doc 1'),
+                  )
+                  ),
+
+                ]);
+          })
+        //     +[
+        //   DataRow(cells: [
+        //     const DataCell(Text('')),
+        //     const DataCell(Text('')),
+        //     const DataCell(Text('')),
+        //     const DataCell(Text('')),
+        //     DataCell(
+        //       Text(
+        //         'Total Debit: $totalDebit',
+        //         style: const TextStyle(fontWeight: FontWeight.bold),
+        //       ),
+        //     ),
+        //     DataCell(
+        //       Text(
+        //         'Total Credit: $totalCredit',
+        //         style: const TextStyle(fontWeight: FontWeight.bold),
+        //       ),
+        //     ),
+        //     const DataCell(Text('')),
+        //     const DataCell(Text('')),
+        //   ],
+        //   ),
+        // ]
+      );
   }
 }
 
@@ -631,7 +693,8 @@ class MyData extends DataTableSource {
               ThemeColors.primary, ThemeColors.whiteColor, 70.0, 35.0),
           onPressed: () {},
           child: const Text('Doc 1'),
-        )),
+        )
+        ),
       ],
       onSelectChanged: (value) {},
     );
