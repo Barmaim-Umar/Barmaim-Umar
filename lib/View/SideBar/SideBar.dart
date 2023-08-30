@@ -246,11 +246,12 @@ class ExampleSidebarX extends StatelessWidget {
         ),
 
         // 10
-        const SidebarXItem(
+         SidebarXItem(
             label:'Billing Dashboard',
             iconWidget: Tooltip(
                 message: "Billing Dashboard",
-                child: Icon(Icons.library_books_sharp , color: Colors.white,))
+                // child: Icon(Icons.library_books_sharp , color: Colors.white,))
+                child: Image.asset('assets/billingIcon.png',width: 30,color: Colors.white,))
         ),
 
         // 11

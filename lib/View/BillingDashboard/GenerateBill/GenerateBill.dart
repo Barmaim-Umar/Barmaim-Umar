@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pfc/utility/Widgets/DateFieldWidget2.dart';
+import 'package:pfc/utility/Widgets/SearchDropdownWidget.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'dart:math';
@@ -31,7 +32,7 @@ List<String> billingLedgerList = [
   'Name3',
   'Name4'
 ];
-List<String> vehicleTypeList = ['Select Vehicle Type', 'BPCL', 'Cash', 'ATM'];
+List<String> vehicleTypeList = ['BPCL', 'Cash', 'ATM'];
 List<String> entriesList = ["10", "20", "30", "40"];
 bool isChecked = false;
 
@@ -53,6 +54,12 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
   TextEditingController dayControllerTo = TextEditingController();
   TextEditingController monthControllerTo = TextEditingController();
   TextEditingController yearControllerTo = TextEditingController();
+  // ########################
+  TextEditingController dayControllerBill = TextEditingController();
+  TextEditingController monthControllerBill = TextEditingController();
+  TextEditingController yearControllerBill = TextEditingController();
+  TextEditingController apiControllerBill = TextEditingController();
+
   final _formKey = GlobalKey<FormState>();
 
 
@@ -73,73 +80,103 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
               padding: const EdgeInsets.all(10.0),
               child: Row(
                 children: [
-                  UiDecoration().dropDown(
-                      1,
-                      DropdownButton<String>(
-                        borderRadius: BorderRadius.circular(5),
-                        dropdownColor: ThemeColors.dropdownColor,
-                        underline: Container(
-                          decoration: const BoxDecoration(border: Border()),
-                        ),
-                        isExpanded: true,
-                        hint: Text(
-                          'Select Vehicle Type',
-                          style:
-                          TextStyle(color: ThemeColors.dropdownTextColor),
-                        ),
-                        icon: DropdownDecoration().dropdownIcon(),
-                        value: vehicleTypeDropdownValue,
-                        elevation: 16,
-                        style: DropdownDecoration().dropdownTextStyle(),
+                  Expanded(
+                    child: SearchDropdownWidget(
+                        dropdownList: vehicleTypeList,
+                        hintText:  'Select Vehicle Type',
                         onChanged: (String? newValue) {
-                          // This is called when the user selects an item.
-                          setState(() {
-                            vehicleTypeDropdownValue = newValue!;
-                          });
-                        },
-                        items: vehicleTypeList
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value.toString(),
-                            child: Center(child: Text(value)),
-                          );
-                        }).toList(),
-                      )),
+                      // This is called when the user selects an item.
+                      setState(() {
+                        vehicleTypeDropdownValue = newValue!;
+                      });
+                    },
+                        selectedItem:  vehicleTypeDropdownValue,
+                        maxHeight: 150,
+                      showSearchBox: false,
+                    ),
+                  ),
+                  // UiDecoration().dropDown(
+                  //     1,
+                  //     DropdownButton<String>(
+                  //       borderRadius: BorderRadius.circular(5),
+                  //       dropdownColor: ThemeColors.dropdownColor,
+                  //       underline: Container(
+                  //         decoration: const BoxDecoration(border: Border()),
+                  //       ),
+                  //       isExpanded: true,
+                  //       hint: Text(
+                  //         'Select Vehicle Type',
+                  //         style:
+                  //         TextStyle(color: ThemeColors.dropdownTextColor),
+                  //       ),
+                  //       icon: DropdownDecoration().dropdownIcon(),
+                  //       value: vehicleTypeDropdownValue,
+                  //       elevation: 16,
+                  //       style: DropdownDecoration().dropdownTextStyle(),
+                  //       onChanged: (String? newValue) {
+                  //         // This is called when the user selects an item.
+                  //         setState(() {
+                  //           vehicleTypeDropdownValue = newValue!;
+                  //         });
+                  //       },
+                  //       items: vehicleTypeList
+                  //           .map<DropdownMenuItem<String>>((String value) {
+                  //         return DropdownMenuItem<String>(
+                  //           value: value.toString(),
+                  //           child: Center(child: Text(value)),
+                  //         );
+                  //       }).toList(),
+                  //     )),
                   const SizedBox(
                     width: 10,
                   ),
-                  UiDecoration().dropDown(
-                      1,
-                      DropdownButton<String>(
-                        borderRadius: BorderRadius.circular(5),
-                        dropdownColor: ThemeColors.dropdownColor,
-                        underline: Container(
-                          decoration: const BoxDecoration(border: Border()),
-                        ),
-                        isExpanded: true,
-                        hint: Text(
-                          'Select Ledger',
-                          style:
-                          TextStyle(color: ThemeColors.dropdownTextColor),
-                        ),
-                        icon: DropdownDecoration().dropdownIcon(),
-                        value: ledgerDropdownValue,
-                        elevation: 16,
-                        style: DropdownDecoration().dropdownTextStyle(),
-                        onChanged: (String? newValue) {
-                          // This is called when the user selects an item.
-                          setState(() {
-                            ledgerDropdownValue = newValue!;
-                          });
-                        },
-                        items: ledgerList
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value.toString(),
-                            child: Center(child: Text(value)),
-                          );
-                        }).toList(),
-                      )),
+                  Expanded(
+                    child: SearchDropdownWidget(
+                      dropdownList:  ledgerList,
+                      hintText:  'Select Ledger',
+                      onChanged: (String? newValue) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          ledgerDropdownValue = newValue!;
+                        });
+                      },
+                      selectedItem:  ledgerDropdownValue,
+                      maxHeight: 150,
+                      showSearchBox: false,
+                    ),
+                  ),
+                  // UiDecoration().dropDown(
+                  //     1,
+                  //     DropdownButton<String>(
+                  //       borderRadius: BorderRadius.circular(5),
+                  //       dropdownColor: ThemeColors.dropdownColor,
+                  //       underline: Container(
+                  //         decoration: const BoxDecoration(border: Border()),
+                  //       ),
+                  //       isExpanded: true,
+                  //       hint: Text(
+                  //         'Select Ledger',
+                  //         style:
+                  //         TextStyle(color: ThemeColors.dropdownTextColor),
+                  //       ),
+                  //       icon: DropdownDecoration().dropdownIcon(),
+                  //       value: ledgerDropdownValue,
+                  //       elevation: 16,
+                  //       style: DropdownDecoration().dropdownTextStyle(),
+                  //       onChanged: (String? newValue) {
+                  //         // This is called when the user selects an item.
+                  //         setState(() {
+                  //           ledgerDropdownValue = newValue!;
+                  //         });
+                  //       },
+                  //       items: ledgerList
+                  //           .map<DropdownMenuItem<String>>((String value) {
+                  //         return DropdownMenuItem<String>(
+                  //           value: value.toString(),
+                  //           child: Center(child: Text(value)),
+                  //         );
+                  //       }).toList(),
+                  //     )),
 
                   const SizedBox(
                     width: 10,
@@ -300,84 +337,101 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                                     children: [
                                       TextDecorationClass()
                                           .heading1('Select Billing Ledger'),
-                                      UiDecoration().dropDown(
-                                        0,
-                                        DropdownButton<String>(
-                                          borderRadius:
-                                          BorderRadius.circular(5),
-                                          dropdownColor: ThemeColors.whiteColor,
-                                          underline: Container(
-                                            decoration: const BoxDecoration(
-                                                border: Border()),
-                                          ),
-                                          isExpanded: true,
-                                          icon: const Icon(
-                                            CupertinoIcons.chevron_down,
-                                            color: ThemeColors.darkBlack,
-                                            size: 20,
-                                          ),
-                                          iconSize: 30,
-                                          value: billingLedgerDropdownValue,
-                                          elevation: 16,
-                                          style:
-                                          TextDecorationClass().dropDownText(),
-                                          onChanged: (String? newValue) {
-                                            // This is called when the user selects an item.
-                                            setState(() {
-                                              billingLedgerDropdownValue =
-                                              newValue!;
-                                            });
-                                          },
-                                          items: billingLedgerList
-                                              .map<DropdownMenuItem<String>>(
-                                                  (String value) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value.toString(),
-                                                  child: Text(value),
-                                                );
-                                              }).toList(),
-                                        ),
+                                    SizedBox(
+                                      width: 300,
+                                      child: SearchDropdownWidget(
+                                        dropdownList: billingLedgerList,
+                                        hintText:  'Select Billing Ledger',
+                                        onChanged: (String? newValue) {
+                                          // This is called when the user selects an item.
+                                          setState(() {
+                                            billingLedgerDropdownValue = newValue!;
+                                          });
+                                        },
+                                        selectedItem:  billingLedgerDropdownValue,
+                                        maxHeight: 150,
+                                        showSearchBox: false,
                                       ),
+                                    ),
+                                      // UiDecoration().dropDown(
+                                      //   0,
+                                      //   DropdownButton<String>(
+                                      //     borderRadius:
+                                      //     BorderRadius.circular(5),
+                                      //     dropdownColor: ThemeColors.whiteColor,
+                                      //     underline: Container(
+                                      //       decoration: const BoxDecoration(
+                                      //           border: Border()),
+                                      //     ),
+                                      //     isExpanded: true,
+                                      //     icon: const Icon(
+                                      //       CupertinoIcons.chevron_down,
+                                      //       color: ThemeColors.darkBlack,
+                                      //       size: 20,
+                                      //     ),
+                                      //     iconSize: 30,
+                                      //     value: billingLedgerDropdownValue,
+                                      //     elevation: 16,
+                                      //     style:
+                                      //     TextDecorationClass().dropDownText(),
+                                      //     onChanged: (String? newValue) {
+                                      //       // This is called when the user selects an item.
+                                      //       setState(() {
+                                      //         billingLedgerDropdownValue =
+                                      //         newValue!;
+                                      //       });
+                                      //     },
+                                      //     items: billingLedgerList
+                                      //         .map<DropdownMenuItem<String>>(
+                                      //             (String value) {
+                                      //           return DropdownMenuItem<String>(
+                                      //             value: value.toString(),
+                                      //             child: Text(value),
+                                      //           );
+                                      //         }).toList(),
+                                      //   ),
+                                      // ),
                                     ],
                                   ),
                                 ),
                                 widthBox30(),
                                 Expanded(
-                                  flex: 2,
+                                  flex: 1,
                                   child: Column(
                                     crossAxisAlignment:
                                     CrossAxisAlignment.start,
                                     children: [
                                       TextDecorationClass().heading1("Billing Date"),
-                                      TextFormField(
-                                        readOnly: true,
-                                        controller: billingDate,
-                                        decoration: UiDecoration()
-                                            .outlineTextFieldDecoration(
-                                            "Billing Date", Colors.grey),
-                                        validator: (value) {
-                                          if (value == null || value.isEmpty) {
-                                            return 'Tenure To Field is Required';
-                                          }
-                                          return null;
-                                        },
-                                        onTap: () {
-                                          UiDecoration()
-                                              .showDatePickerDecoration(context)
-                                              .then((value) {
-                                            setState(() {
-                                              String month = value.month
-                                                  .toString()
-                                                  .padLeft(2, '0');
-                                              String day = value.day
-                                                  .toString()
-                                                  .padLeft(2, '0');
-                                              billingDate.text =
-                                              "$day-$month-${value.year}";
-                                            });
-                                          });
-                                        },
-                                      ),
+                                      DateFieldWidget2(dayController: dayControllerBill, monthController:monthControllerBill, yearController: yearControllerBill, dateControllerApi: apiControllerBill),
+                                      // TextFormField(
+                                      //   readOnly: true,
+                                      //   controller: billingDate,
+                                      //   decoration: UiDecoration()
+                                      //       .outlineTextFieldDecoration(
+                                      //       "Billing Date", Colors.grey),
+                                      //   validator: (value) {
+                                      //     if (value == null || value.isEmpty) {
+                                      //       return 'Tenure To Field is Required';
+                                      //     }
+                                      //     return null;
+                                      //   },
+                                      //   onTap: () {
+                                      //     UiDecoration()
+                                      //         .showDatePickerDecoration(context)
+                                      //         .then((value) {
+                                      //       setState(() {
+                                      //         String month = value.month
+                                      //             .toString()
+                                      //             .padLeft(2, '0');
+                                      //         String day = value.day
+                                      //             .toString()
+                                      //             .padLeft(2, '0');
+                                      //         billingDate.text =
+                                      //         "$day-$month-${value.year}";
+                                      //       });
+                                      //     });
+                                      //   },
+                                      // ),
                                     ],
                                   ),
                                 ),
@@ -418,41 +472,22 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                 children: [
                   const Text('Show '),
                   // entries dropdown
-                  Container(
-                    height: 35,
+                  SizedBox(
                     width: 100,
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: Colors.grey.shade400)),
-                    child: DropdownButton<String>(
-                      borderRadius: BorderRadius.circular(5),
-                      dropdownColor: ThemeColors.dropdownColor,
-                      underline: Container(
-                        decoration: const BoxDecoration(border: Border()),
-                      ),
-                      isExpanded: true,
-                      hint: Text(
-                        'Select Entries',
-                        style: TextStyle(color: ThemeColors.dropdownTextColor),
-                      ),
-                      icon: DropdownDecoration().dropdownIcon(),
-                      value: entriesDropdownValue,
-                      elevation: 16,
-                      style: DropdownDecoration().dropdownTextStyle(),
+
+                    child: SearchDropdownWidget(
+                      dropdownList: entriesList,
+                      hintText:  'Select Entries',
                       onChanged: (String? newValue) {
                         // This is called when the user selects an item.
                         setState(() {
                           entriesDropdownValue = newValue!;
                         });
                       },
-                      items: entriesList
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value.toString(),
-                          child: Center(child: Text(value)),
-                        );
-                      }).toList(),
+                      selectedItem:  entriesDropdownValue,
+                      maxHeight: 150,
+
+                      showSearchBox: false,
                     ),
                   ),
                   const Text(' entries'),
@@ -534,7 +569,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                                 PointerDeviceKind.trackpad
                               }),
                           child:Container(
-                            color: Colors.teal,
+
                             width: double.maxFinite,
                             // width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
                             child: SingleChildScrollView(
