@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pfc/responsive.dart';
+import 'package:pfc/utility/Widgets/SearchDropdownWidget.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'package:pfc/utility/utility.dart';
@@ -249,42 +250,59 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
               const Spacer(),
               const Spacer(),
               const Spacer(),
-              UiDecoration().dropDown(
-                1,
-                DropdownButton<String>(
-                  borderRadius: BorderRadius.circular(5),
-                  dropdownColor: ThemeColors.whiteColor,
-                  underline: Container(
-                    decoration: const BoxDecoration(border: Border()),
-                  ),
-                  isExpanded: true,
-                  hint: const Text(
-                    'Entries',
-                    style: TextStyle(color: ThemeColors.darkBlack),
-                  ),
-                  icon: const Icon(
-                    CupertinoIcons.chevron_down,
-                    color: ThemeColors.darkBlack,
-                    size: 20,
-                  ),
-                  iconSize: 30,
-                  value: lrDropdown,
-                  elevation: 16,
-                  style: TextDecorationClass().dropDownText(),
+
+              Expanded(
+                child: SearchDropdownWidget(
+                  dropdownList: lr,
+                  hintText:  'Entries',
                   onChanged: (String? newValue) {
                     // This is called when the user selects an item.
                     setState(() {
                       lrDropdown = newValue!;
                     });
                   },
-                  items: lr.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value.toString(),
-                      child: Text(value),
-                    );
-                  }).toList(),
+                  selectedItem:  lrDropdown,
+                  maxHeight: 200,
+
+                  showSearchBox: false,
                 ),
               ),
+              // UiDecoration().dropDown(
+              //   1,
+              //   DropdownButton<String>(
+              //     borderRadius: BorderRadius.circular(5),
+              //     dropdownColor: ThemeColors.whiteColor,
+              //     underline: Container(
+              //       decoration: const BoxDecoration(border: Border()),
+              //     ),
+              //     isExpanded: true,
+              //     hint: const Text(
+              //       'Entries',
+              //       style: TextStyle(color: ThemeColors.darkBlack),
+              //     ),
+              //     icon: const Icon(
+              //       CupertinoIcons.chevron_down,
+              //       color: ThemeColors.darkBlack,
+              //       size: 20,
+              //     ),
+              //     iconSize: 30,
+              //     value: lrDropdown,
+              //     elevation: 16,
+              //     style: TextDecorationClass().dropDownText(),
+              //     onChanged: (String? newValue) {
+              //       // This is called when the user selects an item.
+              //       setState(() {
+              //         lrDropdown = newValue!;
+              //       });
+              //     },
+              //     items: lr.map<DropdownMenuItem<String>>((String value) {
+              //       return DropdownMenuItem<String>(
+              //         value: value.toString(),
+              //         child: Text(value),
+              //       );
+              //     }).toList(),
+              //   ),
+              // ),
               widthBox20(),
               ElevatedButton(
                 style: ButtonStyles.customiseButton(

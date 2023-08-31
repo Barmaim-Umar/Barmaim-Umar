@@ -1,11 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:pfc/AlertBoxes.dart';
+import 'package:pfc/GlobalVariable/GlobalVariable.dart';
+import 'package:pfc/View/SideBar/SideBar.dart';
+import 'package:pfc/auth/auth.dart';
 import 'package:pfc/utility/Widgets/DateFieldWidget2.dart';
 import 'package:pfc/utility/Widgets/SearchDropdownWidget.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'dart:math';
+import 'package:http/http.dart'as http;
 
 import 'package:pfc/utility/utility.dart';
 
@@ -19,14 +26,14 @@ class GenerateBill extends StatefulWidget {
 }
 
 List<String> ledgerList = [
-  'Select Ledger',
+
   'Mushtaq Khan',
   'Akbar Patel',
   'Name3',
   'Name4'
 ];
 List<String> billingLedgerList = [
-  'Select Billing Ledger',
+
   'Mushtaq Khan',
   'Akbar Patel',
   'Name3',
@@ -37,9 +44,9 @@ List<String> entriesList = ["10", "20", "30", "40"];
 bool isChecked = false;
 
 class _GenerateBillState extends State<GenerateBill> with Utility {
-  String ledgerDropdownValue = ledgerList.first;
-  String billingLedgerDropdownValue = billingLedgerList.first;
-  String vehicleTypeDropdownValue = vehicleTypeList.first;
+  String ledgerDropdownValue ='';
+  String billingLedgerDropdownValue = '';
+  String vehicleTypeDropdownValue = '';
   String entriesDropdownValue = entriesList.first;
   TextEditingController fromDateController = TextEditingController();
   TextEditingController toDateController = TextEditingController();
@@ -60,7 +67,51 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
   TextEditingController yearControllerBill = TextEditingController();
   TextEditingController apiControllerBill = TextEditingController();
 
+  List receivedLrTable = [];
+  int freshload = 0;
+
+
+  List selectedRows = [];
+  List selectedReceivedLRIdsList = [];
+  int selectedReceivedLRId = -1;
+
+
+
   final _formKey = GlobalKey<FormState>();
+  getReceivedLRsApiFunc(){
+    setState(() {
+      freshload =1;
+    });
+    getReceivedLRsApi().then((value) {
+      var info = jsonDecode(value);
+      print(info);
+      if(info['success']==true){
+        receivedLrTable.clear();
+        GlobalVariable.totalRecords = info['total_records'];
+        GlobalVariable.prev=info['prev'];
+        GlobalVariable.next=info['next'];
+        GlobalVariable.totalPages=info['total_pages'];
+        receivedLrTable.addAll(info['data']);
+setState(() {
+  freshload = 0;
+});
+
+      }
+      else
+        {
+          AlertBoxes.flushBarErrorMessage(info['message'], context);
+        }
+    });
+  }
+  @override
+  void initState() {
+    GlobalVariable.currentPage=1;
+    GlobalVariable.totalRecords=0;
+
+    getReceivedLRsApiFunc();
+    // TODO: implement initState
+    super.initState();
+  }
 
 
 
@@ -284,6 +335,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                     style: ButtonStyles.customiseButton(ThemeColors.orangeColor,
                         ThemeColors.whiteColor, 150.0, 40.0),
                     onPressed: () {
+                      print('4r3li3srdafdasf; ${selectedReceivedLRIdsList}');
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -298,6 +350,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                                 InkWell(
                                   onTap: () {
                                     Navigator.pop(context);
+
                                   },
                                   child: const Icon(
                                     CupertinoIcons.xmark,
@@ -482,6 +535,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                         // This is called when the user selects an item.
                         setState(() {
                           entriesDropdownValue = newValue!;
+                          getReceivedLRsApiFunc();
                         });
                       },
                       selectedItem:  entriesDropdownValue,
@@ -573,10 +627,58 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                             width: double.maxFinite,
                             // width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
                             child: SingleChildScrollView(
-                                child: buildDataTable()),
+                                child: buildDataTable()
+                            ),
+
                           ),
 
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
 
+                            Text("Total Records: ${GlobalVariable.totalRecords}"),
+
+                            const SizedBox(width: 100,),
+
+                            // First Page Button
+                            IconButton(onPressed: !GlobalVariable.prev ? null : () {
+                              setState(() {
+                                GlobalVariable.currentPage = 1;
+                                getReceivedLRsApiFunc();
+                              });
+
+                            }, icon: const Icon(Icons.first_page)),
+
+                            // Prev Button
+                            IconButton(
+                                onPressed: GlobalVariable.prev == false ? null : () {
+                                  setState(() {
+                                    GlobalVariable.currentPage > 1 ? GlobalVariable.currentPage-- : GlobalVariable.currentPage = 1;
+                                    getReceivedLRsApiFunc();
+                                  });
+                                }, icon: const Icon(Icons.chevron_left)),
+
+                            const SizedBox(width: 30,),
+
+                            // Next Button
+                            IconButton  (
+                                onPressed: GlobalVariable.next == false ? null : () {
+                                  setState(() {
+                                    GlobalVariable.currentPage++;
+                                    getReceivedLRsApiFunc();
+                                  });
+                                }, icon: const Icon(Icons.chevron_right)),
+
+                            // Last Page Button
+                            IconButton(onPressed: !GlobalVariable.next ? null : () {
+                              setState(() {
+                                GlobalVariable.currentPage = GlobalVariable.totalPages;
+                                getReceivedLRsApiFunc();
+                              });
+
+                            }, icon: const Icon(Icons.last_page)),
+                          ],
                         ),
                       ],
                     ))),
@@ -590,10 +692,11 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
     double totalCredit = 0;
     return
       /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
-      DataTable(
+      freshload==1?Center(child: CircularProgressIndicator()) : DataTable(
           columnSpacing: 55,
+          showCheckboxColumn: true,
           columns: const [
-            DataColumn(label: Text('Mark',overflow: TextOverflow.ellipsis,)),
+            // DataColumn(label: Text('Mark',overflow: TextOverflow.ellipsis,)),
             DataColumn(label: Text('LR No ',overflow: TextOverflow.ellipsis,)),
             DataColumn(label: Text('Ledger',overflow: TextOverflow.ellipsis,)),
             DataColumn(label: Text('vehicle No',overflow: TextOverflow.ellipsis,)),
@@ -604,7 +707,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
             DataColumn(label: Text('Scanned',overflow: TextOverflow.ellipsis,)),
 
           ],
-          rows:  List.generate(100, (index) {
+          rows:  List.generate(receivedLrTable.length, (index) {
 
             // Calculate totals
             // if (transactionList[0][index]['debit'] != null) {
@@ -614,16 +717,21 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
             //   totalCredit += double.parse(transactionList[0][index]['credit'] == '' ? '0' : transactionList[0][index]['credit']);
             // }
             return DataRow(
+                selected: selectedRows.contains(index),
+              onSelectChanged: (value) {
+                onSelectedRow(value!, index);
+              },
                 color: index == 0 || index % 2 == 0? MaterialStatePropertyAll(ThemeColors.tableRowColor) : const MaterialStatePropertyAll(Colors.white),
                 cells: [
-                  DataCell(Text("data")),
-                  DataCell(Text("data")),
-                  DataCell(Text("data")),
-                  DataCell(Text("data")),
-                  DataCell(Text("data")),
-                  DataCell(Text("data")),
-                  DataCell(Text("data")),
-                  DataCell(Text("data")),
+                  // DataCell(Text("data")),
+                  DataCell(Text(receivedLrTable[index]['lr_number'].toString())),
+                  DataCell(Text(receivedLrTable[index]['ledger_title'].toString())),
+                  DataCell(Text(receivedLrTable[index]['vehicle_id'].toString())),
+                  DataCell(Text(receivedLrTable[index]['from_location'].toString())),
+                  DataCell(Text(receivedLrTable[index]['to_location'].toString())),
+                  DataCell(Text(receivedLrTable[index]['lr_date'].toString())),
+                  DataCell(Text(receivedLrTable[index]['received_date'].toString())),
+
                   DataCell(ElevatedButton(
                     style: ButtonStyles.customiseButton(
                         ThemeColors.primary, ThemeColors.whiteColor, 70.0, 35.0),
@@ -658,6 +766,44 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
         //   ),
         // ]
       );
+  }
+  // for checkbox
+  onSelectedRow(bool selected , int index) {
+    setState(() {
+      if(selected){
+        selectedRows.add(index);
+        selectedReceivedLRIdsList.add(receivedLrTable[index]['lr_id']);
+        selectedReceivedLRId = receivedLrTable[index]['lr_id'];
+      }else{
+        selectedRows.remove(index);
+        selectedReceivedLRIdsList.remove(receivedLrTable[index]['lr_id']);
+        // selectedPayableId = -1;
+      }
+    });
+  }
+  Future getReceivedLRsApi() async {
+    var url = Uri.parse('${GlobalVariable.billingBaseURL}Reports/GetReceivedLRs?limit=${entriesDropdownValue}&page=${GlobalVariable.currentPage}&from_date&to_date=&ledger_id&vehcicle_type&keyword') ;
+    var headers = {
+      'token': Auth.token
+    };
+    var response = await http.get(url,headers: headers);
+    return response.body.toString();
+  }
+
+  // #####  getGenerateBillApi   ####
+  Future getGenerateBillApi() async {
+    var url = Uri.parse('${GlobalVariable.billingBaseURL}Billing/GenerateBill?'
+        'lr_ids=31570,31571,31572&'
+        'ledger_id=101&'
+        'bill_number=102777365112345&'
+        'total_freight_amount=23000&'
+        'billed_by=12&'
+        'billing_date=2023-01-29') ;
+    var headers = {
+      'token': Auth.token
+    };
+    var response = await http.get(url,headers: headers);
+    return response.body.toString();
   }
 }
 

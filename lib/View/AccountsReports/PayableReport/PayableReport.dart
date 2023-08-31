@@ -371,7 +371,8 @@ class _PayableReportState extends State<PayableReport> with Utility{
                                 const DataColumn(label: Text('Amount')),
                                 const DataColumn(label: Text('Paid')),
                                 const DataColumn(label: Text('Balance')),
-                                DataColumn(label: Row(
+                                DataColumn(label:
+                                Row(
                                   children: [
                                     const Text('Action'),
                                     const SizedBox(width: 10,),
@@ -917,6 +918,7 @@ class _PayableReportState extends State<PayableReport> with Utility{
     var response = await http.post(url,headers: headers,body: body);
     return response.body.toString();
   }
+
 
   Future exportDataApi() async {
     var headers = {

@@ -33,10 +33,21 @@ class _BillListState extends State<BillList> with Utility {
   TextEditingController monthControllerTo = TextEditingController();
   TextEditingController yearControllerTo = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
+  final List<Map<String, dynamic>> _data = List.generate(
+      200,
+          (index) => {
+        "bill_no": 'bill $index',
+        "ledger": 'customer ${Random().nextInt(99999)}',
+        'vehicle': '-',
+        'lr_number': '-',
+        "amount": Random().nextInt(100000),
+        "type": 'regular',
+        "billing_date": 'date $index',
+        "billed_by": 'person $index',
+      });
   @override
   Widget build(BuildContext context) {
-    final DataTableSource data = MyData();
+    // final DataTableSource data = MyData();
     return Scaffold(
       appBar: UiDecoration.appBar('Billing List'),
       body: Container(
@@ -280,38 +291,47 @@ class _BillListState extends State<BillList> with Utility {
 
             Expanded(
                 child: SingleChildScrollView(
+                  // scrollDirection: Axis.horizontal,
+
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ScrollConfiguration(
-                          behavior: ScrollConfiguration.of(context).copyWith(
-                              dragDevices: {
-                                PointerDeviceKind.touch,
-                                PointerDeviceKind.mouse,
-                                PointerDeviceKind.trackpad
-                              }),
-                          child: PaginatedDataTable(
-                            columns: const [
-                              DataColumn(label: Text('Bill No')),
-                              DataColumn(label: Text('Ledger/Customer')),
-                              DataColumn(label: Text('Vehicle')),
-                              DataColumn(label: Text('LR Number')),
-                              DataColumn(label: Text('Total Freight Amount')),
-                              DataColumn(label: Text('Type')),
-                              DataColumn(label: Text('Billing Date')),
-                              DataColumn(label: Text('Billed By')),
-                              DataColumn(label: Text('Action')),
-                            ],
-                            source: data,
-                            showCheckboxColumn: false,
-                            columnSpacing: 80,
-                            horizontalMargin: 10,
-                            rowsPerPage: int.parse(entriesDropdownValue),
-                            showFirstLastButtons: true,
-                            sortAscending: true,
-                            sortColumnIndex: 0,
-                          ),
+                            behavior: ScrollConfiguration.of(context).copyWith(
+                                dragDevices: {
+                                  PointerDeviceKind.touch,
+                                  PointerDeviceKind.mouse,
+                                  PointerDeviceKind.trackpad
+                                }),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(
+                                  width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
+                                  child: buildDataTable()),
+                            )
+
+                          // PaginatedDataTable(
+                          //   columns: const [
+                          //     DataColumn(label: Text('Bill No')),
+                          //     DataColumn(label: Text('Ledger/Customer')),
+                          //     DataColumn(label: Text('Vehicle')),
+                          //     DataColumn(label: Text('LR Number')),
+                          //     DataColumn(label: Text('Total Freight Amount')),
+                          //     DataColumn(label: Text('Type')),
+                          //     DataColumn(label: Text('Billing Date')),
+                          //     DataColumn(label: Text('Billed By')),
+                          //     DataColumn(label: Text('Action')),
+                          //   ],
+                          //   source: data,
+                          //   showCheckboxColumn: false,
+                          //   columnSpacing: 80,
+                          //   horizontalMargin: 10,
+                          //   rowsPerPage: int.parse(entriesDropdownValue),
+                          //   showFirstLastButtons: true,
+                          //   sortAscending: true,
+                          //   sortColumnIndex: 0,
+                          // ),
                         )
                       ],
                     ))),
@@ -320,66 +340,157 @@ class _BillListState extends State<BillList> with Utility {
       ),
     );
   }
-}
+  Widget buildDataTable() {
+    double totalDebit = 0;
+    double totalCredit = 0;
+    return
+      /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
+      Expanded(
+        child: DataTable(
+          // columnSpacing: 90,
+            columns: const [
+              DataColumn(label: Text('Bill No ',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('Ledger/Customer ',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('Vehicle',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('LR Number',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('Total Freight Amount',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('Type',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('Billing Date',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('Billed By',overflow: TextOverflow.ellipsis,)),
+              DataColumn(label: Text('Action',overflow: TextOverflow.ellipsis,)),
 
-class MyData extends DataTableSource {
-  final List<Map<String, dynamic>> _data = List.generate(
-      200,
-          (index) => {
-        "bill_no": 'bill $index',
-        "ledger": 'customer ${Random().nextInt(99999)}',
-        'vehicle': '-',
-        'lr_number': '-',
-        "amount": Random().nextInt(100000),
-        "type": 'regular',
-        "billing_date": 'date $index',
-        "billed_by": 'person $index',
-      });
+            ],
+            rows:  List.generate(100, (index) {
 
-  @override
-  DataRow? getRow(int index) {
-    return DataRow(
-      color:  MaterialStatePropertyAll(index == 0 || index % 2 == 0? ThemeColors.tableRowColor : Colors.white ),
-      cells: [
-        DataCell(Text(_data[index]['bill_no'].toString())),
-        DataCell(Text(_data[index]['ledger'].toString())),
-        DataCell(Text(_data[index]['vehicle'].toString())),
-        DataCell(Text(_data[index]['lr_number'].toString())),
-        DataCell(Text(_data[index]['amount'].toString())),
-        DataCell(Text(_data[index]['type'].toString())),
-        DataCell(Text(_data[index]['billed_date'].toString())),
-        DataCell(Text(_data[index]['billed_by'].toString())),
-        DataCell(Row(
-          children: [
-            UiDecoration().actionButton( ThemeColors.editColor,IconButton(
-                padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.edit, size: 15, color: Colors.white,))),
-            const SizedBox(width: 5),
-            UiDecoration().actionButton( ThemeColors.primary, IconButton(
-                padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(CupertinoIcons.link, size: 15, color: Colors.white,))),
-            const SizedBox(width: 5),
-            UiDecoration().actionButton( ThemeColors.orangeColor, IconButton(
-                padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.print_outlined, size: 15, color: Colors.white,))),
-            const SizedBox(width: 5),
-            UiDecoration().actionButton( ThemeColors.darkBlueColor, IconButton(
-                padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.menu, size: 15, color: Colors.white,))),
-            const SizedBox(width: 5),
-            UiDecoration().actionButton( ThemeColors.deleteColor, IconButton(
-                padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.delete, size: 15, color: Colors.white,))),
-          ],
-        )),
-      ],
-    );
+              // Calculate totals
+              // if (transactionList[0][index]['debit'] != null) {
+              //   totalDebit += double.parse( transactionList[0][index]['debit'] == '' ? '0' : transactionList[0][index]['debit'] );
+              // }
+              // if (transactionList[0][index]['credit'] != null) {
+              //   totalCredit += double.parse(transactionList[0][index]['credit'] == '' ? '0' : transactionList[0][index]['credit']);
+              // }
+              return DataRow(
+                  color: index == 0 || index % 2 == 0? MaterialStatePropertyAll(ThemeColors.tableRowColor) : const MaterialStatePropertyAll(Colors.white),
+                  cells: [
+                    DataCell(Text(_data[index]['bill_no'].toString())),
+                    DataCell(Text(_data[index]['ledger'].toString())),
+                    DataCell(Text(_data[index]['vehicle'].toString())),
+                    DataCell(Text(_data[index]['lr_number'].toString())),
+                    DataCell(Text(_data[index]['amount'].toString())),
+                    DataCell(Text(_data[index]['type'].toString())),
+                    DataCell(Text(_data[index]['billed_date'].toString())),
+                    DataCell(Text(_data[index]['billed_by'].toString())),
+                    DataCell(Row(
+                      children: [
+                        UiDecoration().actionButton( ThemeColors.editColor,IconButton(
+                            padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.edit, size: 15, color: Colors.white,))),
+                        const SizedBox(width: 5),
+                        UiDecoration().actionButton( ThemeColors.primary, IconButton(
+                            padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(CupertinoIcons.link, size: 15, color: Colors.white,))),
+                        const SizedBox(width: 5),
+                        UiDecoration().actionButton( ThemeColors.orangeColor, IconButton(
+                            padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.print_outlined, size: 15, color: Colors.white,))),
+                        const SizedBox(width: 5),
+                        UiDecoration().actionButton( ThemeColors.darkBlueColor, IconButton(
+                            padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.menu, size: 15, color: Colors.white,))),
+                        const SizedBox(width: 5),
+                        UiDecoration().actionButton( ThemeColors.deleteColor, IconButton(
+                            padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.delete, size: 15, color: Colors.white,))),
+                      ],
+                    )
+                    ),
+
+                  ]
+              );
+            }
+            )
+          //     +[
+          //   DataRow(cells: [
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //     DataCell(
+          //       Text(
+          //         'Total Debit: $totalDebit',
+          //         style: const TextStyle(fontWeight: FontWeight.bold),
+          //       ),
+          //     ),
+          //     DataCell(
+          //       Text(
+          //         'Total Credit: $totalCredit',
+          //         style: const TextStyle(fontWeight: FontWeight.bold),
+          //       ),
+          //     ),
+          //     const DataCell(Text('')),
+          //     const DataCell(Text('')),
+          //   ],
+          //   ),
+          // ]
+        ),
+      );
   }
-
-  @override
-  // TODO: implement isRowCountApproximate
-  bool get isRowCountApproximate => false;
-
-  @override
-  // TODO: implement rowCount
-  int get rowCount => _data.length;
-
-  @override
-  // TODO: implement selectedRowCount
-  int get selectedRowCount => 0;
 }
+
+// class MyData extends DataTableSource {
+//   final List<Map<String, dynamic>> _data = List.generate(
+//       200,
+//           (index) => {
+//         "bill_no": 'bill $index',
+//         "ledger": 'customer ${Random().nextInt(99999)}',
+//         'vehicle': '-',
+//         'lr_number': '-',
+//         "amount": Random().nextInt(100000),
+//         "type": 'regular',
+//         "billing_date": 'date $index',
+//         "billed_by": 'person $index',
+//       });
+//
+//   @override
+//   DataRow? getRow(int index) {
+//     return DataRow(
+//       color:  MaterialStatePropertyAll(index == 0 || index % 2 == 0? ThemeColors.tableRowColor : Colors.white ),
+//       cells: [
+//         DataCell(Text(_data[index]['bill_no'].toString())),
+//         DataCell(Text(_data[index]['ledger'].toString())),
+//         DataCell(Text(_data[index]['vehicle'].toString())),
+//         DataCell(Text(_data[index]['lr_number'].toString())),
+//         DataCell(Text(_data[index]['amount'].toString())),
+//         DataCell(Text(_data[index]['type'].toString())),
+//         DataCell(Text(_data[index]['billed_date'].toString())),
+//         DataCell(Text(_data[index]['billed_by'].toString())),
+//         DataCell(Row(
+//           children: [
+//             UiDecoration().actionButton( ThemeColors.editColor,IconButton(
+//                 padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.edit, size: 15, color: Colors.white,))),
+//             const SizedBox(width: 5),
+//             UiDecoration().actionButton( ThemeColors.primary, IconButton(
+//                 padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(CupertinoIcons.link, size: 15, color: Colors.white,))),
+//             const SizedBox(width: 5),
+//             UiDecoration().actionButton( ThemeColors.orangeColor, IconButton(
+//                 padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.print_outlined, size: 15, color: Colors.white,))),
+//             const SizedBox(width: 5),
+//             UiDecoration().actionButton( ThemeColors.darkBlueColor, IconButton(
+//                 padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.menu, size: 15, color: Colors.white,))),
+//             const SizedBox(width: 5),
+//             UiDecoration().actionButton( ThemeColors.deleteColor, IconButton(
+//                 padding: const EdgeInsets.all(0),onPressed: () {}, icon: const Icon(Icons.delete, size: 15, color: Colors.white,))),
+//           ],
+//         )
+//         ),
+//       ],
+//     );
+//   }
+//
+//   @override
+//   // TODO: implement isRowCountApproximate
+//   bool get isRowCountApproximate => false;
+//
+//   @override
+//   // TODO: implement rowCount
+//   int get rowCount => _data.length;
+//
+//   @override
+//   // TODO: implement selectedRowCount
+//   int get selectedRowCount => 0;
+// }

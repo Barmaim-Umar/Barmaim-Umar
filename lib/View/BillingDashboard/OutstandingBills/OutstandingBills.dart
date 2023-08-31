@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pfc/View/AllForms/UpdateBillDetails%20&%20LRList/UpdateBillDetailsAndLRList.dart';
 import 'package:pfc/utility/Widgets/DateFieldWidget2.dart';
+import 'package:pfc/utility/Widgets/SearchDropdownWidget.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'dart:math';
@@ -17,7 +18,7 @@ class OutstandingBills extends StatefulWidget {
 }
 
 List<String> entriesDropdownList = ["10", "20", "30", "40"];
-List<String> ledgerList = ['Select Ledger', 'Not Assign', 'Assign'];
+List<String> ledgerList = ['Not Assign', 'Assign'];
 
 class _OutstandingBillsState extends State<OutstandingBills> with Utility {
 
@@ -53,83 +54,117 @@ class _OutstandingBillsState extends State<OutstandingBills> with Utility {
                 children: [
                   const Text('Show '),
                   // dropdown
-                  Container(
-                    height: 30,
-                    width: 80,
-                    padding: const EdgeInsets.symmetric(horizontal: 5),
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: ThemeColors.grey700)),
-                    child: DropdownButton<String>(
-                      borderRadius: BorderRadius.circular(5),
-                      dropdownColor: ThemeColors.whiteColor,
-                      underline: Container(
-                        decoration: const BoxDecoration(border: Border()),
-                      ),
-                      isExpanded: true,
-                      hint: const Text(
-                        'Entries',
-                        style: TextStyle(color: ThemeColors.darkBlack),
-                      ),
-                      icon: const Icon(
-                        CupertinoIcons.chevron_down,
-                        color: ThemeColors.darkBlack,
-                        size: 20,
-                      ),
-                      iconSize: 30,
-                      value: entriesDropdownValue,
-                      elevation: 16,
-                      style: TextDecorationClass().dropDownText(),
+                  SizedBox(
+                    width: 150,
+                    child: SearchDropdownWidget(
+                      dropdownList: entriesDropdownList,
+                      hintText:  'Select Entries',
                       onChanged: (String? newValue) {
                         // This is called when the user selects an item.
                         setState(() {
                           entriesDropdownValue = newValue!;
                         });
                       },
-                      items: entriesDropdownList
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value.toString(),
-                          child: Text(value),
-                        );
-                      }).toList(),
+                      selectedItem:  entriesDropdownValue,
+                      maxHeight: 150,
+
+                      showSearchBox: false,
                     ),
                   ),
+                  // Container(
+                  //   height: 30,
+                  //   width: 80,
+                  //   padding: const EdgeInsets.symmetric(horizontal: 5),
+                  //   decoration: BoxDecoration(
+                  //       borderRadius: BorderRadius.circular(5),
+                  //       border: Border.all(color: ThemeColors.grey700)),
+                  //   child: DropdownButton<String>(
+                  //     borderRadius: BorderRadius.circular(5),
+                  //     dropdownColor: ThemeColors.whiteColor,
+                  //     underline: Container(
+                  //       decoration: const BoxDecoration(border: Border()),
+                  //     ),
+                  //     isExpanded: true,
+                  //     hint: const Text(
+                  //       'Entries',
+                  //       style: TextStyle(color: ThemeColors.darkBlack),
+                  //     ),
+                  //     icon: const Icon(
+                  //       CupertinoIcons.chevron_down,
+                  //       color: ThemeColors.darkBlack,
+                  //       size: 20,
+                  //     ),
+                  //     iconSize: 30,
+                  //     value: entriesDropdownValue,
+                  //     elevation: 16,
+                  //     style: TextDecorationClass().dropDownText(),
+                  //     onChanged: (String? newValue) {
+                  //       // This is called when the user selects an item.
+                  //       setState(() {
+                  //         entriesDropdownValue = newValue!;
+                  //       });
+                  //     },
+                  //     items: entriesDropdownList
+                  //         .map<DropdownMenuItem<String>>((String value) {
+                  //       return DropdownMenuItem<String>(
+                  //         value: value.toString(),
+                  //         child: Text(value),
+                  //       );
+                  //     }).toList(),
+                  //   ),
+                  // ),
                   const Text(' entries'),
                   const Spacer(),
-                  UiDecoration().dropDown(1, DropdownButton<String>(
-                    borderRadius: BorderRadius.circular(5),
-                    dropdownColor: ThemeColors.whiteColor,
-                    underline: Container(
-                      decoration: const BoxDecoration(border: Border()),
+                  SizedBox(
+                    width: 350,
+                    child: SearchDropdownWidget(
+                      dropdownList: ledgerList,
+                      hintText:  'Select Ledger',
+                      onChanged: (String? newValue) {
+                        // This is called when the user selects an item.
+                        setState(() {
+                          ledgerDropdownValue = newValue!;
+                        });
+                      },
+                      selectedItem:  ledgerDropdownValue,
+                      maxHeight: 150,
+
+                      showSearchBox: false,
                     ),
-                    isExpanded: true,
-                    hint: const Text(
-                      'Select Ledger',
-                      style: TextStyle(color: ThemeColors.darkBlack),
-                    ),
-                    icon: const Icon(
-                      CupertinoIcons.chevron_down,
-                      color: ThemeColors.darkBlack,
-                      size: 15,
-                    ),
-                    iconSize: 30,
-                    value: ledgerDropdownValue,
-                    elevation: 16,
-                    style: TextDecorationClass().dropDownText(),
-                    onChanged: (String? newValue) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        ledgerDropdownValue = newValue!;
-                      });
-                    },
-                    items: ledgerList.map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value.toString(),
-                        child: Center(child: Text(value)),
-                      );
-                    }).toList(),
-                  ),),
+                  ),
+                  // UiDecoration().dropDown(1, DropdownButton<String>(
+                  //   borderRadius: BorderRadius.circular(5),
+                  //   dropdownColor: ThemeColors.whiteColor,
+                  //   underline: Container(
+                  //     decoration: const BoxDecoration(border: Border()),
+                  //   ),
+                  //   isExpanded: true,
+                  //   hint: const Text(
+                  //     'Select Ledger',
+                  //     style: TextStyle(color: ThemeColors.darkBlack),
+                  //   ),
+                  //   icon: const Icon(
+                  //     CupertinoIcons.chevron_down,
+                  //     color: ThemeColors.darkBlack,
+                  //     size: 15,
+                  //   ),
+                  //   iconSize: 30,
+                  //   value: ledgerDropdownValue,
+                  //   elevation: 16,
+                  //   style: TextDecorationClass().dropDownText(),
+                  //   onChanged: (String? newValue) {
+                  //     // This is called when the user selects an item.
+                  //     setState(() {
+                  //       ledgerDropdownValue = newValue!;
+                  //     });
+                  //   },
+                  //   items: ledgerList.map<DropdownMenuItem<String>>((String value) {
+                  //     return DropdownMenuItem<String>(
+                  //       value: value.toString(),
+                  //       child: Center(child: Text(value)),
+                  //     );
+                  //   }).toList(),
+                  // ),),
                   widthBox20(),
                   Form(
                     key: _formKey,
@@ -197,21 +232,29 @@ class _OutstandingBillsState extends State<OutstandingBills> with Utility {
                       // spacing: 0,
                       children: [
                         BStyles()
-                            .button('CSV', 'Export to CSV', "assets/csv2.png"),
+                            .button('CSV', 'Export to CSV', "assets/csv2.png",onPressed: () {
+
+                            },),
                         const SizedBox(
                           width: 10,
                         ),
                         BStyles().button(
-                            'Excel', 'Export to Excel', "assets/excel.png"),
+                            'Excel', 'Export to Excel', "assets/excel.png",onPressed: () {
+
+                        },),
                         const SizedBox(
                           width: 10,
                         ),
                         BStyles()
-                            .button('PDF', 'Export to PDF', "assets/pdf.png"),
+                            .button('PDF', 'Export to PDF', "assets/pdf.png",onPressed: () {
+
+                        },),
                         const SizedBox(
                           width: 10,
                         ),
-                        BStyles().button('Print', 'Print', "assets/print.png"),
+                        BStyles().button('Print', 'Print', "assets/print.png",onPressed: () {
+
+                        },),
                       ],
                     ),
                   ),
