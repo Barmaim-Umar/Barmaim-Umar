@@ -7,12 +7,13 @@ import 'package:pfc/AlertBoxes.dart';
 import 'package:pfc/GlobalVariable/GlobalVariable.dart';
 import 'package:pfc/View/SideBar/SideBar.dart';
 import 'package:pfc/auth/auth.dart';
+import 'package:pfc/service_wrapper/service_wrapper.dart';
 import 'package:pfc/utility/Widgets/DateFieldWidget2.dart';
 import 'package:pfc/utility/Widgets/SearchDropdownWidget.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'dart:math';
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 
 import 'package:pfc/utility/utility.dart';
 
@@ -25,15 +26,7 @@ class GenerateBill extends StatefulWidget {
   State<GenerateBill> createState() => _GenerateBillState();
 }
 
-List<String> ledgerList = [
-
-  'Mushtaq Khan',
-  'Akbar Patel',
-  'Name3',
-  'Name4'
-];
 List<String> billingLedgerList = [
-
   'Mushtaq Khan',
   'Akbar Patel',
   'Name3',
@@ -44,7 +37,7 @@ List<String> entriesList = ["10", "20", "30", "40"];
 bool isChecked = false;
 
 class _GenerateBillState extends State<GenerateBill> with Utility {
-  String ledgerDropdownValue ='';
+  // String ledgerDropdownValue ='';
   String billingLedgerDropdownValue = '';
   String vehicleTypeDropdownValue = '';
   String entriesDropdownValue = entriesList.first;
@@ -70,50 +63,124 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
   List receivedLrTable = [];
   int freshload = 0;
 
-
   List selectedRows = [];
   List selectedReceivedLRIdsList = [];
   int selectedReceivedLRId = -1;
 
+  // ####LedgerList dropdown ###
+  String? ledgerID = '';
+  String? ledgerIDDropdown = '';
+  String? oppLedgerID;
+  List ledgerList = [];
+  List payList = [];
+  List<String> ledgerTitleList = [];
+  ValueNotifier<String> ledgerDropdownValue = ValueNotifier('');
+  ValueNotifier<String> ledgerDropdownValue2 = ValueNotifier('');
+  TextEditingController dateControllerApi = TextEditingController();
+  TextEditingController dayController = TextEditingController();
+  TextEditingController monthController = TextEditingController();
+  TextEditingController yearController = TextEditingController();
 
+  String? ledgerIDDropdown2 = '';
+
+  // ### Vehiclelist Dropdown ###
+  List vehicleDropdown = [];
+  List<String> vehicleNoList = [];
+  String vehicleDropdownValue = '';
 
   final _formKey = GlobalKey<FormState>();
-  getReceivedLRsApiFunc(){
+  getReceivedLRsApiFunc() {
     setState(() {
-      freshload =1;
+      freshload = 1;
     });
     getReceivedLRsApi().then((value) {
       var info = jsonDecode(value);
       print(info);
-      if(info['success']==true){
+      if (info['success'] == true) {
         receivedLrTable.clear();
         GlobalVariable.totalRecords = info['total_records'];
-        GlobalVariable.prev=info['prev'];
-        GlobalVariable.next=info['next'];
-        GlobalVariable.totalPages=info['total_pages'];
+        GlobalVariable.prev = info['prev'];
+        GlobalVariable.next = info['next'];
+        GlobalVariable.totalPages = info['total_pages'];
         receivedLrTable.addAll(info['data']);
-setState(() {
-  freshload = 0;
-});
-
+        setState(() {
+          freshload = 0;
+        });
+      } else {
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
       }
-      else
-        {
-          AlertBoxes.flushBarErrorMessage(info['message'], context);
-        }
     });
   }
+
+  // ##### LedgerAPi Function ###
+  ledgerFetchApiFunc() {
+    ServiceWrapper().ledgerFetchApi().then((value) {
+      var info = jsonDecode(value);
+      if (info['success'] == true) {
+        ledgerList.clear();
+        ledgerTitleList.clear();
+        ledgerList.addAll(info['data']);
+
+        // adding ledger title in ledgerTitleList
+
+        for (int i = 0; i < info['data'].length; i++) {
+          ledgerTitleList.add(info['data'][i]['ledger_title']);
+        }
+      } else {
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+      }
+    });
+  }
+
+  // vehicle dropdown API
+  vehicleDropdownApiFunc() {
+    ServiceWrapper().vehicleFetchApi().then((value) {
+      var info = jsonDecode(value);
+
+      if (info['success'] == true) {
+        vehicleDropdown.addAll(info['data']);
+
+        // adding ledger title in "$ledgerTitleList" for dropdown
+        for (int i = 0; i < info['data'].length; i++) {
+          vehicleNoList.add(info['data'][i]['vehicle_number']);
+        }
+      } else {
+        AlertBoxes.flushBarErrorMessage("${info['message']}", context);
+      }
+    });
+  }
+
+  getGenerateBillApiFunc() {
+    getGenerateBillApi().then((value) {
+      var info = jsonDecode(value);
+      if (info['success'] == true) {
+        AlertBoxes.flushBarSuccessMessage(info['message'], context);
+
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+               UpdateBillDetailsAndLRList( billNumber: billNumber.text),
+            ));
+
+      }
+      else {
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+      }
+    });
+  }
+
   @override
   void initState() {
-    GlobalVariable.currentPage=1;
-    GlobalVariable.totalRecords=0;
+    GlobalVariable.currentPage = 1;
+    GlobalVariable.totalRecords = 0;
+    vehicleDropdownApiFunc();
+    ledgerFetchApiFunc();
 
     getReceivedLRsApiFunc();
     // TODO: implement initState
     super.initState();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -131,20 +198,19 @@ setState(() {
               padding: const EdgeInsets.all(10.0),
               child: Row(
                 children: [
+                  /// Vehicle dropdown
                   Expanded(
                     child: SearchDropdownWidget(
-                        dropdownList: vehicleTypeList,
-                        hintText:  'Select Vehicle Type',
-                        onChanged: (String? newValue) {
-                      // This is called when the user selects an item.
-                      setState(() {
-                        vehicleTypeDropdownValue = newValue!;
-                      });
-                    },
-                        selectedItem:  vehicleTypeDropdownValue,
-                        maxHeight: 150,
-                      showSearchBox: false,
-                    ),
+                        dropdownList: vehicleNoList,
+                        hintText: "Select Vehicle",
+                        onChanged: (value) {
+                          // This is called when the user selects an item.
+                          setState(() {
+                            vehicleDropdownValue = value!;
+                            // vehicleWiseReportApiFunc();
+                          });
+                        },
+                        selectedItem: vehicleDropdownValue),
                   ),
                   // UiDecoration().dropDown(
                   //     1,
@@ -178,24 +244,50 @@ setState(() {
                   //         );
                   //       }).toList(),
                   //     )),
-                  const SizedBox(
+                  SizedBox(
                     width: 10,
                   ),
-                  Expanded(
-                    child: SearchDropdownWidget(
-                      dropdownList:  ledgerList,
-                      hintText:  'Select Ledger',
-                      onChanged: (String? newValue) {
-                        // This is called when the user selects an item.
-                        setState(() {
-                          ledgerDropdownValue = newValue!;
-                        });
-                      },
-                      selectedItem:  ledgerDropdownValue,
-                      maxHeight: 150,
-                      showSearchBox: false,
+
+                  /// ledger drop down
+                  SizedBox(
+                    width: 300,
+                    child: ValueListenableBuilder(
+                      valueListenable: ledgerDropdownValue,
+                      builder: (context, value2, child) => SearchDropdownWidget(
+                        dropdownList: ledgerTitleList,
+                        hintText: "Select Ledger",
+                        onChanged: (value) {
+                          ledgerDropdownValue.value = value!;
+
+                          // getting ledger id
+                          for (int i = 0; i < ledgerList.length; i++) {
+                            if (ledgerDropdownValue.value ==
+                                ledgerList[i]['ledger_title']) {
+                              ledgerIDDropdown =
+                                  ledgerList[i]['ledger_id'].toString();
+                            }
+                          }
+                        },
+                        selectedItem: value2,
+                        showSearchBox: true,
+                      ),
                     ),
                   ),
+                  // Expanded(
+                  //   child: SearchDropdownWidget(
+                  //     dropdownList:  ledgerList,
+                  //     hintText:  'Select Ledger',
+                  //     onChanged: (String? newValue) {
+                  //       // This is called when the user selects an item.
+                  //       setState(() {
+                  //         ledgerDropdownValue = newValue!;
+                  //       });
+                  //     },
+                  //     selectedItem:  ledgerDropdownValue,
+                  //     maxHeight: 150,
+                  //     showSearchBox: false,
+                  //   ),
+                  // ),
                   // UiDecoration().dropDown(
                   //     1,
                   //     DropdownButton<String>(
@@ -244,8 +336,7 @@ setState(() {
                                 dayController: dayControllerFrom,
                                 monthController: monthControllerFrom,
                                 yearController: yearControllerFrom,
-                                dateControllerApi: fromDateApi
-                            ),
+                                dateControllerApi: fromDateApi),
                           ],
                         ),
                         widthBox20(),
@@ -255,13 +346,11 @@ setState(() {
                             const Text("To : "),
                             Column(
                               children: [
-
                                 DateFieldWidget2(
                                     dayController: dayControllerTo,
                                     monthController: monthControllerTo,
                                     yearController: yearControllerTo,
-                                    dateControllerApi: toDateApi
-                                ),
+                                    dateControllerApi: toDateApi),
                               ],
                             ),
                           ],
@@ -335,7 +424,8 @@ setState(() {
                     style: ButtonStyles.customiseButton(ThemeColors.orangeColor,
                         ThemeColors.whiteColor, 150.0, 40.0),
                     onPressed: () {
-                      print('4r3li3srdafdasf; ${selectedReceivedLRIdsList}');
+                      print(
+                          '4r3li3srdafdasf; ${selectedReceivedLRIdsList.join(",")}');
                       showDialog(
                         context: context,
                         builder: (context) {
@@ -350,7 +440,6 @@ setState(() {
                                 InkWell(
                                   onTap: () {
                                     Navigator.pop(context);
-
                                   },
                                   child: const Icon(
                                     CupertinoIcons.xmark,
@@ -364,16 +453,20 @@ setState(() {
                             actions: [
                               ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                    backgroundColor: ThemeColors.primary
-                                ),
-                                onPressed: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const UpdateBillDetailsAndLRList(),));
+                                    backgroundColor: ThemeColors.primary),
+                                onPressed: () {
+                                  getGenerateBillApiFunc();
+                                  Navigator.pop(context);
                                 },
                                 child: const Text('Generate'),
                               ),
                               ElevatedButton(
-                                style: ButtonStyles.customiseButton(ThemeColors.grey200, ThemeColors.grey, 100.0, 37.0),
-                                onPressed: (){
+                                style: ButtonStyles.customiseButton(
+                                    ThemeColors.grey200,
+                                    ThemeColors.grey,
+                                    100.0,
+                                    37.0),
+                                onPressed: () {
                                   Navigator.pop(context);
                                 },
                                 child: const Text('Close'),
@@ -386,26 +479,42 @@ setState(() {
                                   flex: 2,
                                   child: Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
+                                      ///Billing Ledger
                                       TextDecorationClass()
                                           .heading1('Select Billing Ledger'),
-                                    SizedBox(
-                                      width: 300,
-                                      child: SearchDropdownWidget(
-                                        dropdownList: billingLedgerList,
-                                        hintText:  'Select Billing Ledger',
-                                        onChanged: (String? newValue) {
-                                          // This is called when the user selects an item.
-                                          setState(() {
-                                            billingLedgerDropdownValue = newValue!;
-                                          });
-                                        },
-                                        selectedItem:  billingLedgerDropdownValue,
-                                        maxHeight: 150,
-                                        showSearchBox: false,
+                                      SizedBox(
+                                        width: 300,
+                                        child: ValueListenableBuilder(
+                                          valueListenable: ledgerDropdownValue2,
+                                          builder: (context, value2, child) =>
+                                              SearchDropdownWidget(
+                                            dropdownList: ledgerTitleList,
+                                            hintText: "Select Ledger",
+                                            onChanged: (value) {
+                                              ledgerDropdownValue2.value =
+                                                  value!;
+
+                                              // getting ledger id
+                                              for (int i = 0;
+                                                  i < ledgerList.length;
+                                                  i++) {
+                                                if (ledgerDropdownValue2
+                                                        .value ==
+                                                    ledgerList[i]
+                                                        ['ledger_title']) {
+                                                  ledgerIDDropdown2 =
+                                                      ledgerList[i]['ledger_id']
+                                                          .toString();
+                                                }
+                                              }
+                                            },
+                                            selectedItem: value2,
+                                            showSearchBox: true,
+                                          ),
+                                        ),
                                       ),
-                                    ),
                                       // UiDecoration().dropDown(
                                       //   0,
                                       //   DropdownButton<String>(
@@ -452,10 +561,15 @@ setState(() {
                                   flex: 1,
                                   child: Column(
                                     crossAxisAlignment:
-                                    CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      TextDecorationClass().heading1("Billing Date"),
-                                      DateFieldWidget2(dayController: dayControllerBill, monthController:monthControllerBill, yearController: yearControllerBill, dateControllerApi: apiControllerBill),
+                                      TextDecorationClass()
+                                          .heading1("Billing Date"),
+                                      DateFieldWidget2(
+                                          dayController: dayControllerBill,
+                                          monthController: monthControllerBill,
+                                          yearController: yearControllerBill,
+                                          dateControllerApi: apiControllerBill),
                                       // TextFormField(
                                       //   readOnly: true,
                                       //   controller: billingDate,
@@ -493,7 +607,7 @@ setState(() {
                                     flex: 2,
                                     child: Column(
                                       crossAxisAlignment:
-                                      CrossAxisAlignment.start,
+                                          CrossAxisAlignment.start,
                                       children: [
                                         TextDecorationClass()
                                             .heading1('Bill Number'),
@@ -501,8 +615,8 @@ setState(() {
                                           controller: billNumber,
                                           decoration: UiDecoration()
                                               .outlineTextFieldDecoration(
-                                              "Bill Number",
-                                              ThemeColors.primaryColor),
+                                                  "Bill Number",
+                                                  ThemeColors.primaryColor),
                                         ),
                                       ],
                                     )),
@@ -527,10 +641,9 @@ setState(() {
                   // entries dropdown
                   SizedBox(
                     width: 100,
-
                     child: SearchDropdownWidget(
                       dropdownList: entriesList,
-                      hintText:  'Select Entries',
+                      hintText: 'Select Entries',
                       onChanged: (String? newValue) {
                         // This is called when the user selects an item.
                         setState(() {
@@ -538,9 +651,8 @@ setState(() {
                           getReceivedLRsApiFunc();
                         });
                       },
-                      selectedItem:  entriesDropdownValue,
+                      selectedItem: entriesDropdownValue,
                       maxHeight: 150,
-
                       showSearchBox: false,
                     ),
                   ),
@@ -555,23 +667,27 @@ setState(() {
                       // const SizedBox(
                       //   width: 10,
                       // ),
-                      BStyles().button(onPressed: () {
-
-                      },
-                          'Excel', 'Export to Excel', "assets/excel.png"),
+                      BStyles().button(
+                          onPressed: () {},
+                          'Excel',
+                          'Export to Excel',
+                          "assets/excel.png"),
                       const SizedBox(
                         width: 10,
                       ),
-                      BStyles()
-                          .button(onPressed:() {
-
-                          } ,'PDF', 'Export to PDF', "assets/pdf.png"),
+                      BStyles().button(
+                          onPressed: () {},
+                          'PDF',
+                          'Export to PDF',
+                          "assets/pdf.png"),
                       const SizedBox(
                         width: 10,
                       ),
-                      BStyles().button(onPressed: () {
-
-                      },'Print', 'Print', "assets/print.png"),
+                      BStyles().button(
+                          onPressed: () {},
+                          'Print',
+                          'Print',
+                          "assets/print.png"),
                     ],
                   ),
                   const Spacer(),
@@ -611,198 +727,255 @@ setState(() {
             Expanded(
                 child: SingleChildScrollView(
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// DataTable
-                        ScrollConfiguration(
-                          behavior: ScrollConfiguration.of(context).copyWith(
-                              dragDevices: {
-                                PointerDeviceKind.touch,
-                                PointerDeviceKind.mouse,
-                                PointerDeviceKind.trackpad
-                              }),
-                          child:Container(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// DataTable
+                ScrollConfiguration(
+                  behavior: ScrollConfiguration.of(context).copyWith(
+                      dragDevices: {
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.mouse,
+                        PointerDeviceKind.trackpad
+                      }),
+                  child: Container(
+                    width: double.maxFinite,
+                    // width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
+                    child: SingleChildScrollView(child: buildDataTable()),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text("Total Records: ${GlobalVariable.totalRecords}"),
 
-                            width: double.maxFinite,
-                            // width: MediaQuery.of(context).size.width, // Calculate the total width of your columns
-                            child: SingleChildScrollView(
-                                child: buildDataTable()
-                            ),
+                    const SizedBox(
+                      width: 100,
+                    ),
 
-                          ),
+                    // First Page Button
+                    IconButton(
+                        onPressed: !GlobalVariable.prev
+                            ? null
+                            : () {
+                                setState(() {
+                                  GlobalVariable.currentPage = 1;
+                                  getReceivedLRsApiFunc();
+                                });
+                              },
+                        icon: const Icon(Icons.first_page)),
 
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
+                    // Prev Button
+                    IconButton(
+                        onPressed: GlobalVariable.prev == false
+                            ? null
+                            : () {
+                                setState(() {
+                                  GlobalVariable.currentPage > 1
+                                      ? GlobalVariable.currentPage--
+                                      : GlobalVariable.currentPage = 1;
+                                  getReceivedLRsApiFunc();
+                                });
+                              },
+                        icon: const Icon(Icons.chevron_left)),
 
-                            Text("Total Records: ${GlobalVariable.totalRecords}"),
+                    const SizedBox(
+                      width: 30,
+                    ),
 
-                            const SizedBox(width: 100,),
+                    // Next Button
+                    IconButton(
+                        onPressed: GlobalVariable.next == false
+                            ? null
+                            : () {
+                                setState(() {
+                                  GlobalVariable.currentPage++;
+                                  getReceivedLRsApiFunc();
+                                });
+                              },
+                        icon: const Icon(Icons.chevron_right)),
 
-                            // First Page Button
-                            IconButton(onPressed: !GlobalVariable.prev ? null : () {
-                              setState(() {
-                                GlobalVariable.currentPage = 1;
-                                getReceivedLRsApiFunc();
-                              });
-
-                            }, icon: const Icon(Icons.first_page)),
-
-                            // Prev Button
-                            IconButton(
-                                onPressed: GlobalVariable.prev == false ? null : () {
-                                  setState(() {
-                                    GlobalVariable.currentPage > 1 ? GlobalVariable.currentPage-- : GlobalVariable.currentPage = 1;
-                                    getReceivedLRsApiFunc();
-                                  });
-                                }, icon: const Icon(Icons.chevron_left)),
-
-                            const SizedBox(width: 30,),
-
-                            // Next Button
-                            IconButton  (
-                                onPressed: GlobalVariable.next == false ? null : () {
-                                  setState(() {
-                                    GlobalVariable.currentPage++;
-                                    getReceivedLRsApiFunc();
-                                  });
-                                }, icon: const Icon(Icons.chevron_right)),
-
-                            // Last Page Button
-                            IconButton(onPressed: !GlobalVariable.next ? null : () {
-                              setState(() {
-                                GlobalVariable.currentPage = GlobalVariable.totalPages;
-                                getReceivedLRsApiFunc();
-                              });
-
-                            }, icon: const Icon(Icons.last_page)),
-                          ],
-                        ),
-                      ],
-                    ))),
+                    // Last Page Button
+                    IconButton(
+                        onPressed: !GlobalVariable.next
+                            ? null
+                            : () {
+                                setState(() {
+                                  GlobalVariable.currentPage =
+                                      GlobalVariable.totalPages;
+                                  getReceivedLRsApiFunc();
+                                });
+                              },
+                        icon: const Icon(Icons.last_page)),
+                  ],
+                ),
+              ],
+            ))),
           ],
         ),
       ),
     );
   }
+
   Widget buildDataTable() {
     double totalDebit = 0;
     double totalCredit = 0;
     return
-      /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
-      freshload==1?Center(child: CircularProgressIndicator()) : DataTable(
-          columnSpacing: 55,
-          showCheckboxColumn: true,
-          columns: const [
-            // DataColumn(label: Text('Mark',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('LR No ',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('Ledger',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('vehicle No',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('From Location',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('TO Location',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('LR Date',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('Received Date',overflow: TextOverflow.ellipsis,)),
-            DataColumn(label: Text('Scanned',overflow: TextOverflow.ellipsis,)),
+        /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
+        freshload == 1
+            ? Center(child: CircularProgressIndicator())
+            : DataTable(
+                columnSpacing: 55,
+                showCheckboxColumn: true,
+                columns: const [
+                  // DataColumn(label: Text('Mark',overflow: TextOverflow.ellipsis,)),
+                  DataColumn(
+                      label: Text(
+                    'LR No ',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                  DataColumn(
+                      label: Text(
+                    'Ledger',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                  DataColumn(
+                      label: Text(
+                    'vehicle No',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                  DataColumn(
+                      label: Text(
+                    'From Location',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                  DataColumn(
+                      label: Text(
+                    'TO Location',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                  DataColumn(
+                      label: Text(
+                    'LR Date',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                  DataColumn(
+                      label: Text(
+                    'Received Date',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                  DataColumn(
+                      label: Text(
+                    'Scanned',
+                    overflow: TextOverflow.ellipsis,
+                  )),
+                ],
+                rows: List.generate(receivedLrTable.length, (index) {
+                  // Calculate totals
+                  // if (transactionList[0][index]['debit'] != null) {
+                  //   totalDebit += double.parse( transactionList[0][index]['debit'] == '' ? '0' : transactionList[0][index]['debit'] );
+                  // }
+                  // if (transactionList[0][index]['credit'] != null) {
+                  //   totalCredit += double.parse(transactionList[0][index]['credit'] == '' ? '0' : transactionList[0][index]['credit']);
+                  // }
+                  return DataRow(
+                      selected: selectedRows.contains(index),
+                      onSelectChanged: (value) {
+                        onSelectedRow(value!, index);
+                      },
+                      color: index == 0 || index % 2 == 0
+                          ? MaterialStatePropertyAll(ThemeColors.tableRowColor)
+                          : const MaterialStatePropertyAll(Colors.white),
+                      cells: [
+                        // DataCell(Text("data")),
+                        DataCell(Text(
+                            receivedLrTable[index]['lr_number'].toString())),
+                        DataCell(Text(
+                            receivedLrTable[index]['ledger_title'].toString())),
+                        DataCell(Text(
+                            receivedLrTable[index]['vehicle_id'].toString())),
+                        DataCell(Text(receivedLrTable[index]['from_location']
+                            .toString())),
+                        DataCell(Text(
+                            receivedLrTable[index]['to_location'].toString())),
+                        DataCell(
+                            Text(receivedLrTable[index]['lr_date'].toString())),
+                        DataCell(Text(receivedLrTable[index]['received_date']
+                            .toString())),
 
-          ],
-          rows:  List.generate(receivedLrTable.length, (index) {
-
-            // Calculate totals
-            // if (transactionList[0][index]['debit'] != null) {
-            //   totalDebit += double.parse( transactionList[0][index]['debit'] == '' ? '0' : transactionList[0][index]['debit'] );
-            // }
-            // if (transactionList[0][index]['credit'] != null) {
-            //   totalCredit += double.parse(transactionList[0][index]['credit'] == '' ? '0' : transactionList[0][index]['credit']);
-            // }
-            return DataRow(
-                selected: selectedRows.contains(index),
-              onSelectChanged: (value) {
-                onSelectedRow(value!, index);
-              },
-                color: index == 0 || index % 2 == 0? MaterialStatePropertyAll(ThemeColors.tableRowColor) : const MaterialStatePropertyAll(Colors.white),
-                cells: [
-                  // DataCell(Text("data")),
-                  DataCell(Text(receivedLrTable[index]['lr_number'].toString())),
-                  DataCell(Text(receivedLrTable[index]['ledger_title'].toString())),
-                  DataCell(Text(receivedLrTable[index]['vehicle_id'].toString())),
-                  DataCell(Text(receivedLrTable[index]['from_location'].toString())),
-                  DataCell(Text(receivedLrTable[index]['to_location'].toString())),
-                  DataCell(Text(receivedLrTable[index]['lr_date'].toString())),
-                  DataCell(Text(receivedLrTable[index]['received_date'].toString())),
-
-                  DataCell(ElevatedButton(
-                    style: ButtonStyles.customiseButton(
-                        ThemeColors.primary, ThemeColors.whiteColor, 70.0, 35.0),
-                    onPressed: () {},
-                    child: const Text('Doc 1'),
-                  )
-                  ),
-
-                ]);
-          })
-        //     +[
-        //   DataRow(cells: [
-        //     const DataCell(Text('')),
-        //     const DataCell(Text('')),
-        //     const DataCell(Text('')),
-        //     const DataCell(Text('')),
-        //     DataCell(
-        //       Text(
-        //         'Total Debit: $totalDebit',
-        //         style: const TextStyle(fontWeight: FontWeight.bold),
-        //       ),
-        //     ),
-        //     DataCell(
-        //       Text(
-        //         'Total Credit: $totalCredit',
-        //         style: const TextStyle(fontWeight: FontWeight.bold),
-        //       ),
-        //     ),
-        //     const DataCell(Text('')),
-        //     const DataCell(Text('')),
-        //   ],
-        //   ),
-        // ]
-      );
+                        DataCell(ElevatedButton(
+                          style: ButtonStyles.customiseButton(
+                              ThemeColors.primary,
+                              ThemeColors.whiteColor,
+                              70.0,
+                              35.0),
+                          onPressed: () {},
+                          child: const Text('Doc 1'),
+                        )),
+                      ]);
+                })
+                //     +[
+                //   DataRow(cells: [
+                //     const DataCell(Text('')),
+                //     const DataCell(Text('')),
+                //     const DataCell(Text('')),
+                //     const DataCell(Text('')),
+                //     DataCell(
+                //       Text(
+                //         'Total Debit: $totalDebit',
+                //         style: const TextStyle(fontWeight: FontWeight.bold),
+                //       ),
+                //     ),
+                //     DataCell(
+                //       Text(
+                //         'Total Credit: $totalCredit',
+                //         style: const TextStyle(fontWeight: FontWeight.bold),
+                //       ),
+                //     ),
+                //     const DataCell(Text('')),
+                //     const DataCell(Text('')),
+                //   ],
+                //   ),
+                // ]
+                );
   }
+
   // for checkbox
-  onSelectedRow(bool selected , int index) {
+  onSelectedRow(bool selected, int index) {
     setState(() {
-      if(selected){
+      if (selected) {
         selectedRows.add(index);
         selectedReceivedLRIdsList.add(receivedLrTable[index]['lr_id']);
         selectedReceivedLRId = receivedLrTable[index]['lr_id'];
-      }else{
+      } else {
         selectedRows.remove(index);
         selectedReceivedLRIdsList.remove(receivedLrTable[index]['lr_id']);
         // selectedPayableId = -1;
       }
     });
   }
+
+  /// Received Lr Api
   Future getReceivedLRsApi() async {
-    var url = Uri.parse('${GlobalVariable.billingBaseURL}Reports/GetReceivedLRs?limit=${entriesDropdownValue}&page=${GlobalVariable.currentPage}&from_date&to_date=&ledger_id&vehcicle_type&keyword') ;
-    var headers = {
-      'token': Auth.token
-    };
-    var response = await http.get(url,headers: headers);
+    var url = Uri.parse(
+        '${GlobalVariable.billingBaseURL}Reports/GetReceivedLRs?limit=${entriesDropdownValue}&page=${GlobalVariable.currentPage}&from_date&to_date=&ledger_id&vehcicle_type&keyword');
+    var headers = {'token': Auth.token};
+    var response = await http.get(url, headers: headers);
     return response.body.toString();
   }
 
-  // #####  getGenerateBillApi   ####
+  /// #####  getGenerateBillApi   ####
+  ///
   Future getGenerateBillApi() async {
     var url = Uri.parse('${GlobalVariable.billingBaseURL}Billing/GenerateBill?'
-        'lr_ids=31570,31571,31572&'
-        'ledger_id=101&'
-        'bill_number=102777365112345&'
+        'lr_ids=${selectedReceivedLRIdsList.join(",")}&'
+        'ledger_id=$ledgerIDDropdown2&'
+        'bill_number=${billNumber.text}&'
         'total_freight_amount=23000&'
-        'billed_by=12&'
-        'billing_date=2023-01-29') ;
-    var headers = {
-      'token': Auth.token
-    };
-    var response = await http.get(url,headers: headers);
+        'billed_by=${GlobalVariable.entryBy}&'
+        'billing_date=${apiControllerBill.text}');
+    var headers = {'token': Auth.token};
+    var response = await http.get(url, headers: headers);
     return response.body.toString();
   }
 }
@@ -816,16 +989,16 @@ class MyData extends DataTableSource {
 
   final List<Map<String, dynamic>> _data = List.generate(
       200,
-          (index) => {
-        "date": "27-09-2018",
-        "particulars": "HDFC Bank ATM A/C",
-        "voucher_no": Random().nextInt(10000),
-        "voucher_type": "BPCL",
-        "debit": "${Random().nextInt(7354)}",
-        "credit": Random().nextInt(10000),
-        "narration": "-",
-        "entry_by": "Naveed Khan",
-      });
+      (index) => {
+            "date": "27-09-2018",
+            "particulars": "HDFC Bank ATM A/C",
+            "voucher_no": Random().nextInt(10000),
+            "voucher_type": "BPCL",
+            "debit": "${Random().nextInt(7354)}",
+            "credit": Random().nextInt(10000),
+            "narration": "-",
+            "entry_by": "Naveed Khan",
+          });
 
   @override
   DataRow? getRow(int index) {
@@ -838,7 +1011,9 @@ class MyData extends DataTableSource {
     }
 
     return DataRow(
-      color:  MaterialStatePropertyAll(index == 0 || index % 2 == 0? ThemeColors.tableRowColor : Colors.white ),
+      color: MaterialStatePropertyAll(index == 0 || index % 2 == 0
+          ? ThemeColors.tableRowColor
+          : Colors.white),
       cells: [
         DataCell(onTap: () {
           setState(() {
@@ -852,16 +1027,16 @@ class MyData extends DataTableSource {
                 print("$ind");
               });
             })
-          // Checkbox(
-          //   fillColor: const MaterialStatePropertyAll(ThemeColors.primaryColor),
-          //   value: isChecked,
-          //   onChanged: (value) {
-          //     setState((){
-          //       print(index);
-          //       isChecked = value!;
-          //     });
-          //   },)
-        ),
+            // Checkbox(
+            //   fillColor: const MaterialStatePropertyAll(ThemeColors.primaryColor),
+            //   value: isChecked,
+            //   onChanged: (value) {
+            //     setState((){
+            //       print(index);
+            //       isChecked = value!;
+            //     });
+            //   },)
+            ),
         DataCell(Text(_data[index]['lr_no'].toString())),
         DataCell(Text(_data[index]['ledger'].toString())),
         DataCell(Text(_data[index]['vehicle_no'].toString())),
@@ -874,8 +1049,7 @@ class MyData extends DataTableSource {
               ThemeColors.primary, ThemeColors.whiteColor, 70.0, 35.0),
           onPressed: () {},
           child: const Text('Doc 1'),
-        )
-        ),
+        )),
       ],
       onSelectChanged: (value) {},
     );

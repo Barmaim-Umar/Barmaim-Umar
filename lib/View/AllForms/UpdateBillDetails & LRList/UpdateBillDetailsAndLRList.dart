@@ -1,14 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pfc/AlertBoxes.dart';
+import 'package:pfc/GlobalVariable/GlobalVariable.dart';
+import 'package:pfc/auth/auth.dart';
 import 'package:pfc/responsive.dart';
 import 'package:pfc/utility/Widgets/SearchDropdownWidget.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'package:pfc/utility/utility.dart';
+import 'package:http/http.dart' as http;
 
 class UpdateBillDetailsAndLRList extends StatefulWidget {
-  const UpdateBillDetailsAndLRList({Key? key}) : super(key: key);
-
+  const UpdateBillDetailsAndLRList({Key? key, this.billNumber = "" }) : super(key: key);
+  final String billNumber ;
   @override
   State<UpdateBillDetailsAndLRList> createState() =>
       _UpdateBillDetailsAndLRListState();
@@ -39,6 +45,54 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
   TextEditingController freightAmount = TextEditingController();
   TextEditingController totalFreightAmount = TextEditingController();
   TextEditingController allRemark = TextEditingController();
+
+List BillsLRsData = [];
+ int  freshload = 0;
+
+
+
+  getBillsLRsApiFunc(){
+    setState(() {
+      freshload = 1;
+    });
+    getBillsLRsApi().then((value) {
+      var info = jsonDecode(value);
+      print(info);
+     if (info['success'] = true){
+       BillsLRsData.clear();
+       BillsLRsData.addAll(info['data']);
+
+       for ( int i=0;i<BillsLRsData.length ;i++){
+
+       tollTax.text = info['data'][i]['toll_tax'].toString();
+       freightAmount.text = info['data'][i]['freight_amount'].toString();
+
+
+       }
+
+
+       setState(() {
+         freshload = 0;
+       });
+
+     }
+     else {
+       AlertBoxes.flushBarErrorMessage(info ['message'], context);
+       setState(() {
+         freshload = 0;
+       });
+
+     }
+
+
+    });
+  }
+  @override
+  void initState() {
+    getBillsLRsApiFunc();
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +155,9 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
               const SizedBox(
                 width: 10,
               ),
-              BStyles().button('Print', 'Print', "assets/print.png"),
+              BStyles().button('Print', 'Print', "assets/print.png", onPressed: () {
+
+              },),
             ],
           ),
           const Divider(),
@@ -111,8 +167,9 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
                 flex: 1,
                 child: Row(
                   children: [
+
                     TextDecorationClass().subHeading2('Bill No :  '),
-                    TextDecorationClass().heading2('83831'),
+                    TextDecorationClass().heading2('8888'),
                     const SizedBox(
                       width: 20,
                     ),
@@ -535,5 +592,14 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
         ],
       ),
     );
+  }
+
+  /// billed lr API
+  Future getBillsLRsApi() async {
+    var url = Uri.parse(
+        '${GlobalVariable.billingBaseURL}Billing/GetBillsLR?bill_id=${widget.billNumber}');
+    var headers = {'token': Auth.token};
+    var response = await http.get(url, headers: headers);
+    return response.body.toString();
   }
 }

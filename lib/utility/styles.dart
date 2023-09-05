@@ -412,11 +412,11 @@ class UiDecoration {
   //   }
   // }
 
-  Future<void> excelFunc(exportData) async {
+  Future<void> excelFunc(exportData, {bool header = false}) async {
     if (kIsWeb) {
-      UiDecoration().exportToExcelWeb(exportData);
+      UiDecoration().exportToExcelWeb(exportData, header: header);
     } else {
-      UiDecoration().exportToExcelDesktop(exportData);
+      UiDecoration().exportToExcelDesktop(exportData, header: header);
     }
   }
 
@@ -427,14 +427,19 @@ class UiDecoration {
       UiDecoration().generatePDFDesktop(data);
     }
   }
-
-  Future<void> exportToExcelDesktop(List<List<dynamic>> excelData) async {
+  Future<void> exportToExcelDesktop(List<List<dynamic>> excelData, {bool header = false}) async {
     var excel = Excel.createExcel();
     var sheet = excel['Sheet1'];
     sheet.setColAutoFit(1);
 
     // Define a cell style for the heading
     CellStyle cellStyle = CellStyle(bold: true);
+    CellStyle headerStyle = CellStyle(
+        bold: false,
+        fontSize: 12,
+        underline: Underline.Single,
+        italic: true
+    );
 
     // Populate the sheet with data
     for (int row = 0; row < excelData.length; row++) {
@@ -443,6 +448,9 @@ class UiDecoration {
 
         // Apply bold style to the heading row
         if (row == 0) {
+          sheet.cell(cellIndex).value = excelData[row][col];
+          sheet.cell(cellIndex).cellStyle = headerStyle;
+        } else if(header == true && row == 1){
           sheet.cell(cellIndex).value = excelData[row][col];
           sheet.cell(cellIndex).cellStyle = cellStyle;
         } else {
@@ -454,7 +462,6 @@ class UiDecoration {
     // Generate a unique file name based on the current timestamp
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     String fileName = 'data_$timestamp.xlsx';
-
     // Get the appropriate directory based on the platform
     Directory? directory;
     if (html.window.navigator.userAgent.contains('Mozilla') && html.window.navigator.userAgent.contains('Chrome')) {
@@ -484,6 +491,109 @@ class UiDecoration {
       OpenFile.open(filePath);
     }
   }
+
+  Future<void> exportToExcelWeb(List<List<dynamic>> excelData, {bool header = false}) async {
+    var excel = Excel.createExcel();
+    var sheet = excel['Sheet1'];
+
+    // Define a cell style for the heading
+    CellStyle cellStyle = CellStyle(bold: true);
+
+    // Populate the sheet with data
+    for (int row = 0; row < excelData.length; row++) {
+      for (int col = 0; col < excelData[row].length; col++) {
+        sheet.setColAutoFit(col);
+        CellIndex cellIndex = CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row);
+
+        // Apply bold style to the heading row
+        if (row == 0) {
+          sheet.cell(cellIndex).value = excelData[row][col];
+          sheet.cell(cellIndex).cellStyle = cellStyle;
+        } else if(header == true && row == 1){
+          sheet.cell(cellIndex).value = excelData[row][col];
+          sheet.cell(cellIndex).cellStyle = cellStyle;
+        } else {
+          sheet.cell(cellIndex).value = excelData[row][col];
+        }
+      }
+    }
+
+    // Generate a unique file name based on the current timestamp
+    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    String fileName = 'data_$timestamp.xlsx';
+
+    // Save the Excel file as a download
+    var bytes = excel.save();
+    final blob = html.Blob([bytes], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    final url = html.Url.createObjectUrlFromBlob(blob);
+
+    // Create the download link
+    final anchor = html.document.createElement('a') as html.AnchorElement
+      ..href = url
+      ..style.display = 'none'
+      ..download = fileName;
+    html.document.body?.children.add(anchor);
+    anchor.click();
+    html.document.body?.children.remove(anchor);
+    html.Url.revokeObjectUrl(url);
+  }
+
+  // Future<void> exportToExcelDesktop(List<List<dynamic>> excelData) async {
+  //   var excel = Excel.createExcel();
+  //   var sheet = excel['Sheet1'];
+  //   sheet.setColAutoFit(1);
+  //
+  //   // Define a cell style for the heading
+  //   CellStyle cellStyle = CellStyle(bold: true);
+  //
+  //   // Populate the sheet with data
+  //   for (int row = 0; row < excelData.length; row++) {
+  //     for (int col = 0; col < excelData[row].length; col++) {
+  //       CellIndex cellIndex = CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row);
+  //
+  //       // Apply bold style to the heading row
+  //       if (row == 0) {
+  //         sheet.cell(cellIndex).value = excelData[row][col];
+  //         sheet.cell(cellIndex).cellStyle = cellStyle;
+  //       } else {
+  //         sheet.cell(cellIndex).value = excelData[row][col];
+  //       }
+  //     }
+  //   }
+  //
+  //   // Generate a unique file name based on the current timestamp
+  //   String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+  //   String fileName = 'data_$timestamp.xlsx';
+  //
+  //   // Get the appropriate directory based on the platform
+  //   Directory? directory;
+  //   if (html.window.navigator.userAgent.contains('Mozilla') && html.window.navigator.userAgent.contains('Chrome')) {
+  //     // For Chrome on web, use the Downloads directory
+  //     directory = Directory('Downloads');
+  //   } else {
+  //     // For other platforms, use the application documents directory
+  //     directory = await getApplicationDocumentsDirectory();
+  //   }
+  //
+  //   // Create the file path
+  //   String filePath = '${directory.path}/${fileName.replaceAll(':', '_')}';
+  //
+  //   // Save the Excel file
+  //   var bytes = excel.save();
+  //   File file = File(filePath);
+  //   await file.writeAsBytes(bytes!);
+  //
+  //   // Open the file based on the platform
+  //   if (html.window.navigator.userAgent.contains('Mozilla') && html.window.navigator.userAgent.contains('Chrome')) {
+  //     // For Chrome on web, trigger the download
+  //     html.AnchorElement(href: filePath)
+  //       ..setAttribute('download', fileName)
+  //       ..click();
+  //   } else {
+  //     // For other platforms, open the file using the default program
+  //     OpenFile.open(filePath);
+  //   }
+  // }
 
   // Future<void> exportToExcelWeb(List<List<dynamic>> excelData) async {
   //   var excel = Excel.createExcel();
@@ -533,48 +643,48 @@ class UiDecoration {
   //   html.document.body?.children.remove(anchor);
   //   html.Url.revokeObjectUrl(url);
   // }
-  Future<void> exportToExcelWeb(List<List<dynamic>> excelData) async {
-    var excel = Excel.createExcel();
-    var sheet = excel['Sheet1'];
-
-    // Define a cell style for the heading
-    CellStyle cellStyle = CellStyle(bold: true);
-
-    // Populate the sheet with data
-    for (int row = 0; row < excelData.length; row++) {
-      for (int col = 0; col < excelData[row].length; col++) {
-        sheet.setColAutoFit(col);
-        CellIndex cellIndex = CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row);
-
-        // Apply bold style to the heading row
-        if (row == 0) {
-          sheet.cell(cellIndex).value = excelData[row][col];
-          sheet.cell(cellIndex).cellStyle = cellStyle;
-        } else {
-          sheet.cell(cellIndex).value = excelData[row][col];
-        }
-      }
-    }
-
-    // Generate a unique file name based on the current timestamp
-    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    String fileName = 'data_$timestamp.xlsx';
-
-    // Save the Excel file as a download
-    var bytes = excel.save();
-    final blob = html.Blob([bytes], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    final url = html.Url.createObjectUrlFromBlob(blob);
-
-    // Create the download link
-    final anchor = html.document.createElement('a') as html.AnchorElement
-      ..href = url
-      ..style.display = 'none'
-      ..download = fileName;
-    html.document.body?.children.add(anchor);
-    anchor.click();
-    html.document.body?.children.remove(anchor);
-    html.Url.revokeObjectUrl(url);
-  }
+  // Future<void> exportToExcelWeb(List<List<dynamic>> excelData) async {
+  //   var excel = Excel.createExcel();
+  //   var sheet = excel['Sheet1'];
+  //
+  //   // Define a cell style for the heading
+  //   CellStyle cellStyle = CellStyle(bold: true);
+  //
+  //   // Populate the sheet with data
+  //   for (int row = 0; row < excelData.length; row++) {
+  //     for (int col = 0; col < excelData[row].length; col++) {
+  //       sheet.setColAutoFit(col);
+  //       CellIndex cellIndex = CellIndex.indexByColumnRow(columnIndex: col, rowIndex: row);
+  //
+  //       // Apply bold style to the heading row
+  //       if (row == 0) {
+  //         sheet.cell(cellIndex).value = excelData[row][col];
+  //         sheet.cell(cellIndex).cellStyle = cellStyle;
+  //       } else {
+  //         sheet.cell(cellIndex).value = excelData[row][col];
+  //       }
+  //     }
+  //   }
+  //
+  //   // Generate a unique file name based on the current timestamp
+  //   String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+  //   String fileName = 'data_$timestamp.xlsx';
+  //
+  //   // Save the Excel file as a download
+  //   var bytes = excel.save();
+  //   final blob = html.Blob([bytes], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+  //   final url = html.Url.createObjectUrlFromBlob(blob);
+  //
+  //   // Create the download link
+  //   final anchor = html.document.createElement('a') as html.AnchorElement
+  //     ..href = url
+  //     ..style.display = 'none'
+  //     ..download = fileName;
+  //   html.document.body?.children.add(anchor);
+  //   anchor.click();
+  //   html.document.body?.children.remove(anchor);
+  //   html.Url.revokeObjectUrl(url);
+  // }
 
   Future<void> generatePDFDesktop(List<List<dynamic>> pdfData) async {
     final pdf = pw.Document();
