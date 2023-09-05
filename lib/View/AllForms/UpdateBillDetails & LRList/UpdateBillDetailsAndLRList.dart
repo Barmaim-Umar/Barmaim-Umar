@@ -13,18 +13,46 @@ import 'package:pfc/utility/utility.dart';
 import 'package:http/http.dart' as http;
 
 class UpdateBillDetailsAndLRList extends StatefulWidget {
-  const UpdateBillDetailsAndLRList({Key? key, this.billNumber = "" }) : super(key: key);
-  final String billNumber ;
+  const UpdateBillDetailsAndLRList({Key? key, this.billNumber = "", this.ledger = "", this.date = ""})
+      : super(key: key);
+  final String billNumber;
+  final String ledger;
+  final String date;
+
   @override
   State<UpdateBillDetailsAndLRList> createState() =>
       _UpdateBillDetailsAndLRListState();
 }
 
 List<String> lr = ['Select LR Number', "1", "2", "3", "4", "5", "6"];
-
+List BillsLRsData = [];
 class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
     with Utility {
   String lrDropdown = lr.first;
+
+  List<TextEditingController> warehouseController = [];
+  List<TextEditingController> directBillingController = [];
+  List<TextEditingController> tollTaxController = [];
+  List<TextEditingController> loadingUnloadingController = [];
+  List<TextEditingController> multipointLoadUnloadController = [];
+  List<TextEditingController> incentiveController = [];
+  List<TextEditingController> freightAdjustmentAdditionController = [];
+  List<TextEditingController> latePenaltyController = [];
+  List<TextEditingController> freightAdjustmentSubtractionController = [];
+  List<TextEditingController> damageController = [];
+  List<TextEditingController> haltDaysController = [];
+  List<TextEditingController> haltAmountController = [];
+  List<TextEditingController> noOfPalletsController = [];
+  List<TextEditingController> companyInvoiceNoController = [];
+  List<TextEditingController> loadingDateController = [];
+  List<TextEditingController> reportedDateController = [];
+  List<TextEditingController> unloadedDateController = [];
+  List<TextEditingController> freightAmountController = [];
+  List<TextEditingController> totalFreightAmountController = [];
+  List<TextEditingController> allRemarkController = [];
+
+
+  // #####################################
   TextEditingController warehouse = TextEditingController();
   TextEditingController directBilling = TextEditingController();
   TextEditingController tollTax = TextEditingController();
@@ -46,47 +74,108 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
   TextEditingController totalFreightAmount = TextEditingController();
   TextEditingController allRemark = TextEditingController();
 
-List BillsLRsData = [];
- int  freshload = 0;
 
+  int freshload = 0;
 
-
-  getBillsLRsApiFunc(){
+  getBillsLRsApiFunc() {
     setState(() {
       freshload = 1;
     });
     getBillsLRsApi().then((value) {
       var info = jsonDecode(value);
       print(info);
-     if (info['success'] = true){
-       BillsLRsData.clear();
-       BillsLRsData.addAll(info['data']);
+      if (info['success'] = true) {
+        BillsLRsData.clear();
+        BillsLRsData.addAll(info['data']);
 
-       for ( int i=0;i<BillsLRsData.length ;i++){
+        warehouseController = List.generate(info['data'].length, (index) => TextEditingController());
+        directBillingController = List.generate(info['data'].length, (index) => TextEditingController());
+        tollTaxController = List.generate(info['data'].length, (index) => TextEditingController());
+        loadingUnloadingController = List.generate(info['data'].length, (index) => TextEditingController());
+        multipointLoadUnloadController = List.generate(info['data'].length, (index) => TextEditingController());
+        incentiveController = List.generate(info['data'].length, (index) => TextEditingController());
+        freightAdjustmentAdditionController = List.generate(info['data'].length, (index) => TextEditingController());
+        latePenaltyController = List.generate(info['data'].length, (index) => TextEditingController());
+        freightAdjustmentSubtractionController = List.generate(info['data'].length, (index) => TextEditingController());
+        damageController = List.generate(info['data'].length, (index) => TextEditingController());
+        haltDaysController = List.generate(info['data'].length, (index) => TextEditingController());
+        haltAmountController = List.generate(info['data'].length, (index) => TextEditingController());
+        noOfPalletsController = List.generate(info['data'].length, (index) => TextEditingController());
+        companyInvoiceNoController = List.generate(info['data'].length, (index) => TextEditingController());
+        loadingDateController = List.generate(info['data'].length, (index) => TextEditingController());
+        reportedDateController = List.generate(info['data'].length, (index) => TextEditingController());
+        unloadedDateController = List.generate(info['data'].length, (index) => TextEditingController());
+        freightAmountController = List.generate(info['data'].length, (index) => TextEditingController());
+        totalFreightAmountController = List.generate(info['data'].length, (index) => TextEditingController());
+        allRemarkController = List.generate(info['data'].length, (index) => TextEditingController());
 
-       tollTax.text = info['data'][i]['toll_tax'].toString();
-       freightAmount.text = info['data'][i]['freight_amount'].toString();
+        for(int i=0; i<warehouseController.length; i++){
+          warehouseController[i].text = info['data'][i]['detention_in_warehouse'].toString();
+          directBillingController[i].text = info['data'][i]['detention_for_direct_billing'].toString();
+          tollTaxController[i].text = info['data'][i]['toll_tax'].toString();
+          loadingUnloadingController[i].text = info['data'][i]['loading_unloading_amount'].toString();
+          multipointLoadUnloadController[i].text = info['data'][i]['multipoint_load_unloading'].toString();
+          incentiveController[i].text = info['data'][i]['incentive'].toString();
+          freightAdjustmentAdditionController[i].text = info['data'][i]['freight_adjustment_addition'].toString();
+          latePenaltyController[i].text = info['data'][i]['late_penalty'].toString();
+          freightAdjustmentSubtractionController[i].text = info['data'][i]['freight_adjustment_subtraction'].toString();
+          damageController[i].text = info['data'][i]['damage'].toString();
+          haltDaysController[i].text = info['data'][i]['halt_days'].toString();
+          haltAmountController[i].text = info['data'][i]['halt_amount'].toString();
+          noOfPalletsController[i].text = info['data'][i]['no_of_pallets'].toString();
+          companyInvoiceNoController[i].text = info['data'][i]['lr_invoice_number'].toString();
+          // loadingDateController[i].text = info['data'][i]['detention_in_warehouse'].toString();
+          reportedDateController[i].text = info['data'][i]['reported_date'].toString();
+          unloadedDateController[i].text = info['data'][i]['unloaded_date'].toString();
+          freightAmountController[i].text = info['data'][i]['freight_amount'].toString();
+          totalFreightAmountController[i].text = info['data'][i]['total_freight_amount'].toString();
+          // allRemarkController[i].text = info['data'][i]['detention_in_warehouse'].toString();
+        }
+
+        // for (int i = 0; i < BillsLRsData.length; i++) {
+        //   warehouse.text = info['data'][i]['detention_in_warehouse'].toString();
+        //   directBilling.text =
+        //       info['data'][i]['detention_for_direct_billing'].toString();
+        //
+        //   tollTax.text = info['data'][i]['toll_tax'].toString();
+        //   loadingUnloading.text =
+        //       info['data'][i]['loading_unloading_amount'].toString();
+        //   multiLoadUnload.text =
+        //       info['data'][i]['multipoint_load_unloading'].toString();
+        //   incentive.text = info['data'][i]['incentive'].toString();
+        //   freightAdjustmentAddition.text =
+        //       info['data'][i]['freight_adjustment_addition'].toString();
+        //   latePenalty.text = info['data'][i]['late_penalty'].toString();
+        //   freightAdjustmentSubtraction.text =
+        //       info['data'][i]['freight_adjustment_subtraction'].toString();
+        //   damage.text = info['data'][i]['damage'].toString();
+        //   haltDays.text = info['data'][i]['halt_days'].toString();
+        //   haltAmount.text = info['data'][i]['halt_amount'].toString();
+        //   noOfPallets.text = info['data'][i]['no_of_pallets'].toString();
+        //   companyInvoiceNo.text =
+        //       info['data'][i]['lr_invoice_number'].toString();
+        //   // loadingDate.text = info['data'][i]['lr_invoice_number'].toString();
+        //   reportedDate.text = info['data'][i]['reported_date'].toString();
+        //   unloadedDate.text = info['data'][i]['unloaded_date'].toString();
+        //   freightAmount.text = info['data'][i]['freight_amount'].toString();
+        //   totalFreightAmount.text =
+        //       info['data'][i]['total_freight_amount'].toString();
+        // }
+
+            setState(() {
+            freshload = 0;
+            });
 
 
-       }
-
-
-       setState(() {
-         freshload = 0;
-       });
-
-     }
-     else {
-       AlertBoxes.flushBarErrorMessage(info ['message'], context);
-       setState(() {
-         freshload = 0;
-       });
-
-     }
-
-
+      } else {
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+        setState(() {
+          freshload = 0;
+        });
+      }
     });
   }
+
   @override
   void initState() {
     getBillsLRsApiFunc();
@@ -155,9 +244,12 @@ List BillsLRsData = [];
               const SizedBox(
                 width: 10,
               ),
-              BStyles().button('Print', 'Print', "assets/print.png", onPressed: () {
-
-              },),
+              BStyles().button(
+                'Print',
+                'Print',
+                "assets/print.png",
+                onPressed: () {},
+              ),
             ],
           ),
           const Divider(),
@@ -167,9 +259,8 @@ List BillsLRsData = [];
                 flex: 1,
                 child: Row(
                   children: [
-
                     TextDecorationClass().subHeading2('Bill No :  '),
-                    TextDecorationClass().heading2('8888'),
+                    TextDecorationClass().heading2(widget.billNumber.toString()),
                     const SizedBox(
                       width: 20,
                     ),
@@ -179,18 +270,24 @@ List BillsLRsData = [];
                         IconButton(
                             padding: const EdgeInsets.all(0),
                             onPressed: () {
-                              showDialog(context: context, builder: (context) {
-                                return  AlertDialog(
-                                  title: const Text("Edit Bill no"),
-                                  content: Container(
-                                    width: 300,
-                                    decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-                                    child: TextFormField(
-                                      controller: TextEditingController(text: "83831"),
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text("Edit Bill no"),
+                                    content: Container(
+                                      width: 300,
+                                      decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.grey)),
+                                      child: TextFormField(
+                                        controller: TextEditingController(
+                                            text: "83831"),
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },);
+                                  );
+                                },
+                              );
                             },
                             icon: const Icon(
                               Icons.edit,
@@ -205,7 +302,8 @@ List BillsLRsData = [];
                 child: Row(
                   children: [
                     TextDecorationClass().subHeading2('Ledger :  '),
-                    TextDecorationClass().heading2('UNITED BREWERIES LTD - KHURDA'),
+                    TextDecorationClass()
+                        .heading2(widget.ledger.toString()),
                     const SizedBox(
                       width: 20,
                     ),
@@ -227,7 +325,7 @@ List BillsLRsData = [];
                 child: Row(
                   children: [
                     TextDecorationClass().subHeading2('Bill Date :  '),
-                    TextDecorationClass().heading2('26-04-2023'),
+                    TextDecorationClass().heading2(widget.date.toString()),
                     const SizedBox(
                       width: 20,
                     ),
@@ -311,16 +409,15 @@ List BillsLRsData = [];
               Expanded(
                 child: SearchDropdownWidget(
                   dropdownList: lr,
-                  hintText:  'Entries',
+                  hintText: 'Entries',
                   onChanged: (String? newValue) {
                     // This is called when the user selects an item.
                     setState(() {
                       lrDropdown = newValue!;
                     });
                   },
-                  selectedItem:  lrDropdown,
+                  selectedItem: lrDropdown,
                   maxHeight: 200,
-
                   showSearchBox: false,
                 ),
               ),
@@ -366,14 +463,14 @@ List BillsLRsData = [];
                     Colors.grey.shade300, Colors.grey.shade900, 100.0, 43.0),
                 onPressed: () {},
                 child: Row(
-                  children: const [ Icon(Icons.add),  Text('Add LR')],
+                  children: const [Icon(Icons.add), Text('Add LR')],
                 ),
               ),
             ],
           ),
           const Divider(color: Colors.grey),
-          ListView.builder(
-            itemCount: 3,
+          freshload == 1 ? const Center(child: CircularProgressIndicator()) : ListView.builder(
+            itemCount: BillsLRsData.length,
             shrinkWrap: true,
             scrollDirection: Axis.vertical,
             itemBuilder: (context, index) {
@@ -385,12 +482,12 @@ List BillsLRsData = [];
                         color: ThemeColors.primaryColor),
                     title: Row(
                       children: [
-                        TextDecorationClass().accountsHeading('1411667'),
+                        TextDecorationClass().accountsHeading(BillsLRsData[index]['lr_number'].toString()),
                         TextDecorationClass()
-                            .accountsHeading('UNITED BREWERIES LTD-KHURDA'),
-                        TextDecorationClass().accountsHeading('MH20DE2345'),
-                        TextDecorationClass().accountsHeading('Aurangabad'),
-                        TextDecorationClass().accountsHeading('Khorda'),
+                            .accountsHeading(BillsLRsData[index]['ledger_title'].toString()),
+                        TextDecorationClass().accountsHeading(BillsLRsData[index]['vehicle_number'].toString()),
+                        TextDecorationClass().accountsHeading(BillsLRsData[index]['lr_from_location'].toString()),
+                        TextDecorationClass().accountsHeading(BillsLRsData[index]['lr_to_location'].toString()),
                         widthBox5(),
                         ElevatedButton(
                           style: ButtonStyles.customiseButton(
@@ -420,31 +517,31 @@ List BillsLRsData = [];
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "in Warehouse", "0", warehouse)),
+                                  "in Warehouse", "0", warehouseController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "in Direct Billing", "0", directBilling)),
+                                  "in Direct Billing", "0", directBillingController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets()
-                                  .formDetails8("Toll Tax", "0", tollTax)),
+                                  .formDetails8("Toll Tax", "0", tollTaxController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
                                   "Loading / Unloading",
                                   "0",
-                                  loadingUnloading)),
+                                  loadingUnloadingController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
                                   "Multipoint Load / Unload",
                                   "0",
-                                  multiLoadUnload)),
+                                  multipointLoadUnloadController[index])),
                         ],
                       ),
                       heightBox20(),
@@ -453,31 +550,31 @@ List BillsLRsData = [];
                           Expanded(
                               flex: 1,
                               child: FormWidgets()
-                                  .formDetails8("Incentive", "0", incentive)),
+                                  .formDetails8("Incentive", "0", incentiveController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
                                   "Freight Adjustment Addition",
                                   "0",
-                                  freightAdjustmentAddition)),
+                                  freightAdjustmentAdditionController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "Late Penalty", "0", latePenalty)),
+                                  "Late Penalty", "0", latePenaltyController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
                                   "Freight Adjustment Subtraction",
                                   "0",
-                                  freightAdjustmentSubtraction)),
+                                  freightAdjustmentSubtractionController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets()
-                                  .formDetails8("Damage", "0", damage)),
+                                  .formDetails8("Damage", "0", damageController[index])),
                         ],
                       ),
                       heightBox20(),
@@ -486,29 +583,29 @@ List BillsLRsData = [];
                           Expanded(
                               flex: 1,
                               child: FormWidgets()
-                                  .formDetails8("Halt Days", "0", haltDays)),
+                                  .formDetails8("Halt Days", "0", haltDaysController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "Halt Amount", "0", haltAmount)),
+                                  "Halt Amount", "0", haltAmountController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "Number Of Pallets", "0", noOfPallets)),
+                                  "Number Of Pallets", "0", noOfPalletsController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
                                   "Company Invoice Number",
                                   "0",
-                                  companyInvoiceNo)),
+                                  companyInvoiceNoController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "Loading Date", "0", loadingDate)),
+                                  "Loading Date", "0", loadingDateController[index])),
                         ],
                       ),
                       heightBox20(),
@@ -517,24 +614,24 @@ List BillsLRsData = [];
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "Reported Date", "0", reportedDate)),
+                                  "Reported Date", "0", reportedDateController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "Unloaded Date", "0", unloadedDate)),
+                                  "Unloaded Date", "0", unloadedDateController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
-                                  "Freight Amount", "0", freightAmount)),
+                                  "Freight Amount", "0", freightAmountController[index])),
                           widthBox10(),
                           Expanded(
                               flex: 1,
                               child: FormWidgets().formDetails8(
                                   "Total Freight Amount",
                                   "0",
-                                  totalFreightAmount)),
+                                  totalFreightAmountController[index])),
                           widthBox10(),
                           Expanded(
                             flex: 1,
@@ -581,10 +678,13 @@ List BillsLRsData = [];
               Expanded(
                 flex: 1,
                 child: ElevatedButton(
-                  style: ButtonStyles.customiseButton(
-                      ThemeColors.greenColor, ThemeColors.whiteColor, 10.0, 55.0),
+                  style: ButtonStyles.customiseButton(ThemeColors.greenColor,
+                      ThemeColors.whiteColor, 10.0, 55.0),
                   onPressed: () {},
-                  child: const Text('Save Remark',style: TextStyle(fontSize: 18),),
+                  child: const Text(
+                    'Save Remark',
+                    style: TextStyle(fontSize: 18),
+                  ),
                 ),
               ),
             ],

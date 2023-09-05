@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pfc/AlertBoxes.dart';
 import 'package:pfc/GlobalVariable/GlobalVariable.dart';
 import 'package:pfc/View/SideBar/SideBar.dart';
@@ -89,6 +90,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
   String vehicleDropdownValue = '';
 
   final _formKey = GlobalKey<FormState>();
+
   getReceivedLRsApiFunc() {
     setState(() {
       freshload = 1;
@@ -136,8 +138,12 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
   vehicleDropdownApiFunc() {
     ServiceWrapper().vehicleFetchApi().then((value) {
       var info = jsonDecode(value);
+      print(info);
 
       if (info['success'] == true) {
+        vehicleDropdown.clear();
+        vehicleNoList.clear();
+
         vehicleDropdown.addAll(info['data']);
 
         // adding ledger title in "$ledgerTitleList" for dropdown
@@ -155,12 +161,15 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
       var info = jsonDecode(value);
       if (info['success'] == true) {
         AlertBoxes.flushBarSuccessMessage(info['message'], context);
-
         Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
-               UpdateBillDetailsAndLRList( billNumber: billNumber.text),
+               UpdateBillDetailsAndLRList(
+                   billNumber: billNumber.text,
+                   ledger: ledgerDropdownValue2.value,
+                    date: "${dayControllerBill.text}-${monthControllerBill.text}-${yearControllerBill.text}",
+               ),
             ));
 
       }
@@ -169,6 +178,8 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
       }
     });
   }
+
+
 
   @override
   void initState() {
@@ -426,205 +437,174 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                     onPressed: () {
                       print(
                           '4r3li3srdafdasf; ${selectedReceivedLRIdsList.join(",")}');
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            scrollable: true,
-                            titlePadding: const EdgeInsets.all(10),
-                            title: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextDecorationClass().heading('Generate Bill'),
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Icon(
-                                    CupertinoIcons.xmark,
-                                    color: Colors.grey,
-                                    size: 15,
-                                  ),
-                                )
-                              ],
-                            ),
-                            contentPadding: const EdgeInsets.all(20),
-                            actions: [
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    backgroundColor: ThemeColors.primary),
-                                onPressed: () {
-                                  getGenerateBillApiFunc();
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Generate'),
-                              ),
-                              ElevatedButton(
-                                style: ButtonStyles.customiseButton(
-                                    ThemeColors.grey200,
-                                    ThemeColors.grey,
-                                    100.0,
-                                    37.0),
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Close'),
-                              ),
-                            ],
-                            content: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      ///Billing Ledger
-                                      TextDecorationClass()
-                                          .heading1('Select Billing Ledger'),
-                                      SizedBox(
-                                        width: 300,
-                                        child: ValueListenableBuilder(
-                                          valueListenable: ledgerDropdownValue2,
-                                          builder: (context, value2, child) =>
-                                              SearchDropdownWidget(
-                                            dropdownList: ledgerTitleList,
-                                            hintText: "Select Ledger",
-                                            onChanged: (value) {
-                                              ledgerDropdownValue2.value =
-                                                  value!;
 
-                                              // getting ledger id
-                                              for (int i = 0;
-                                                  i < ledgerList.length;
-                                                  i++) {
-                                                if (ledgerDropdownValue2
-                                                        .value ==
-                                                    ledgerList[i]
-                                                        ['ledger_title']) {
-                                                  ledgerIDDropdown2 =
-                                                      ledgerList[i]['ledger_id']
-                                                          .toString();
-                                                }
-                                              }
-                                            },
-                                            selectedItem: value2,
-                                            showSearchBox: true,
-                                          ),
-                                        ),
-                                      ),
-                                      // UiDecoration().dropDown(
-                                      //   0,
-                                      //   DropdownButton<String>(
-                                      //     borderRadius:
-                                      //     BorderRadius.circular(5),
-                                      //     dropdownColor: ThemeColors.whiteColor,
-                                      //     underline: Container(
-                                      //       decoration: const BoxDecoration(
-                                      //           border: Border()),
-                                      //     ),
-                                      //     isExpanded: true,
-                                      //     icon: const Icon(
-                                      //       CupertinoIcons.chevron_down,
-                                      //       color: ThemeColors.darkBlack,
-                                      //       size: 20,
-                                      //     ),
-                                      //     iconSize: 30,
-                                      //     value: billingLedgerDropdownValue,
-                                      //     elevation: 16,
-                                      //     style:
-                                      //     TextDecorationClass().dropDownText(),
-                                      //     onChanged: (String? newValue) {
-                                      //       // This is called when the user selects an item.
-                                      //       setState(() {
-                                      //         billingLedgerDropdownValue =
-                                      //         newValue!;
-                                      //       });
-                                      //     },
-                                      //     items: billingLedgerList
-                                      //         .map<DropdownMenuItem<String>>(
-                                      //             (String value) {
-                                      //           return DropdownMenuItem<String>(
-                                      //             value: value.toString(),
-                                      //             child: Text(value),
-                                      //           );
-                                      //         }).toList(),
-                                      //   ),
-                                      // ),
-                                    ],
-                                  ),
-                                ),
-                                widthBox30(),
-                                Expanded(
-                                  flex: 1,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      TextDecorationClass()
-                                          .heading1("Billing Date"),
-                                      DateFieldWidget2(
-                                          dayController: dayControllerBill,
-                                          monthController: monthControllerBill,
-                                          yearController: yearControllerBill,
-                                          dateControllerApi: apiControllerBill),
-                                      // TextFormField(
-                                      //   readOnly: true,
-                                      //   controller: billingDate,
-                                      //   decoration: UiDecoration()
-                                      //       .outlineTextFieldDecoration(
-                                      //       "Billing Date", Colors.grey),
-                                      //   validator: (value) {
-                                      //     if (value == null || value.isEmpty) {
-                                      //       return 'Tenure To Field is Required';
-                                      //     }
-                                      //     return null;
-                                      //   },
-                                      //   onTap: () {
-                                      //     UiDecoration()
-                                      //         .showDatePickerDecoration(context)
-                                      //         .then((value) {
-                                      //       setState(() {
-                                      //         String month = value.month
-                                      //             .toString()
-                                      //             .padLeft(2, '0');
-                                      //         String day = value.day
-                                      //             .toString()
-                                      //             .padLeft(2, '0');
-                                      //         billingDate.text =
-                                      //         "$day-$month-${value.year}";
-                                      //       });
-                                      //     });
-                                      //   },
-                                      // ),
-                                    ],
-                                  ),
-                                ),
-                                widthBox30(),
-                                Expanded(
-                                    flex: 2,
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        TextDecorationClass()
-                                            .heading1('Bill Number'),
-                                        TextFormField(
-                                          controller: billNumber,
-                                          decoration: UiDecoration()
-                                              .outlineTextFieldDecoration(
-                                                  "Bill Number",
-                                                  ThemeColors.primaryColor),
-                                        ),
-                                      ],
-                                    )),
-                              ],
-                            ),
-                          );
-                        },
-                      );
+                     if(selectedRows.isEmpty){
+                       AlertBoxes.flushBarErrorMessage("Please Select Atleast One LR", context);
+                     }else{
+                       showDialog(
+                         context: context,
+                         builder: (context) {
+                           return AlertDialog(
+                             scrollable: true,
+                             titlePadding: const EdgeInsets.all(10),
+                             title: Row(
+                               crossAxisAlignment: CrossAxisAlignment.start,
+                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                               children: [
+                                 TextDecorationClass().heading('Generate Bill'),
+                                 InkWell(
+                                   onTap: () {
+
+                                     Navigator.pop(context);
+                                   },
+                                   child: const Icon(
+                                     CupertinoIcons.xmark,
+                                     color: Colors.grey,
+                                     size: 15,
+                                   ),
+                                 )
+                               ],
+                             ),
+                             contentPadding: const EdgeInsets.all(20),
+                             actions: [
+                               ElevatedButton(
+                                 style: ElevatedButton.styleFrom(
+                                     backgroundColor: ThemeColors.primary),
+                                 onPressed: () {
+                                   getGenerateBillApiFunc();
+                                   Navigator.pop(context);
+                                 },
+                                 child: const Text('Generate'),
+                               ),
+                               ElevatedButton(
+                                 style: ButtonStyles.customiseButton(
+                                     ThemeColors.grey200,
+                                     ThemeColors.grey,
+                                     100.0,
+                                     37.0),
+                                 onPressed: () {
+                                   Navigator.pop(context);
+                                 },
+                                 child: const Text('Close'),
+                               ),
+                             ],
+                             content: Row(
+                               mainAxisAlignment: MainAxisAlignment.start,
+                               children: [
+                                 Expanded(
+                                   flex: 2,
+                                   child: Column(
+                                     crossAxisAlignment:
+                                     CrossAxisAlignment.start,
+                                     children: [
+                                       ///Billing Ledger
+                                       TextDecorationClass()
+                                           .heading1('Select Billing Ledger'),
+                                       SizedBox(
+                                         width: 300,
+                                         child: ValueListenableBuilder(
+                                           valueListenable: ledgerDropdownValue2,
+                                           builder: (context, value2, child) =>
+                                               SearchDropdownWidget(
+                                                 dropdownList: ledgerTitleList,
+                                                 hintText: "Select Ledger",
+                                                 onChanged: (value) {
+                                                   ledgerDropdownValue2.value =
+                                                   value!;
+
+                                                   // getting ledger id
+                                                   for (int i = 0;
+                                                   i < ledgerList.length;
+                                                   i++) {
+                                                     if (ledgerDropdownValue2
+                                                         .value ==
+                                                         ledgerList[i]
+                                                         ['ledger_title']) {
+                                                       ledgerIDDropdown2 =
+                                                           ledgerList[i]['ledger_id']
+                                                               .toString();
+                                                     }
+                                                   }
+                                                 },
+                                                 selectedItem: value2,
+                                                 showSearchBox: true,
+                                               ),
+                                         ),
+                                       ),
+                                     ],
+                                   ),
+                                 ),
+                                 widthBox30(),
+                                 Expanded(
+                                   flex: 1,
+                                   child: Column(
+                                     crossAxisAlignment:
+                                     CrossAxisAlignment.start,
+                                     children: [
+                                       TextDecorationClass()
+                                           .heading1("Billing Date"),
+                                       DateFieldWidget2(
+                                           dayController: dayControllerBill,
+                                           monthController: monthControllerBill,
+                                           yearController: yearControllerBill,
+                                           dateControllerApi: apiControllerBill),
+                                       // TextFormField(
+                                       //   readOnly: true,
+                                       //   controller: billingDate,
+                                       //   decoration: UiDecoration()
+                                       //       .outlineTextFieldDecoration(
+                                       //       "Billing Date", Colors.grey),
+                                       //   validator: (value) {
+                                       //     if (value == null || value.isEmpty) {
+                                       //       return 'Tenure To Field is Required';
+                                       //     }
+                                       //     return null;
+                                       //   },
+                                       //   onTap: () {
+                                       //     UiDecoration()
+                                       //         .showDatePickerDecoration(context)
+                                       //         .then((value) {
+                                       //       setState(() {
+                                       //         String month = value.month
+                                       //             .toString()
+                                       //             .padLeft(2, '0');
+                                       //         String day = value.day
+                                       //             .toString()
+                                       //             .padLeft(2, '0');
+                                       //         billingDate.text =
+                                       //         "$day-$month-${value.year}";
+                                       //       });
+                                       //     });
+                                       //   },
+                                       // ),
+                                     ],
+                                   ),
+                                 ),
+                                 widthBox30(),
+                                 Expanded(
+                                     flex: 2,
+                                     child: Column(
+                                       crossAxisAlignment:
+                                       CrossAxisAlignment.start,
+                                       children: [
+                                         TextDecorationClass()
+                                             .heading1('Bill Number'),
+                                         TextFormField(
+                                           controller: billNumber,
+                                           decoration: UiDecoration()
+                                               .outlineTextFieldDecoration(
+                                               "Bill Number",
+                                               ThemeColors.primaryColor),
+                                         ),
+                                       ],
+                                     )),
+                               ],
+                             ),
+                           );
+                         },
+                       );
+
+                     }
                     },
                     child: const Text('Generate Bill'),
                   ),
@@ -823,7 +803,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
     return
         /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
         freshload == 1
-            ? Center(child: CircularProgressIndicator())
+            ? const Center(child: CircularProgressIndicator())
             : DataTable(
                 columnSpacing: 55,
                 showCheckboxColumn: true,
@@ -893,7 +873,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                         DataCell(Text(
                             receivedLrTable[index]['ledger_title'].toString())),
                         DataCell(Text(
-                            receivedLrTable[index]['vehicle_id'].toString())),
+                            receivedLrTable[index]['vehicle_number'].toString())),
                         DataCell(Text(receivedLrTable[index]['from_location']
                             .toString())),
                         DataCell(Text(
