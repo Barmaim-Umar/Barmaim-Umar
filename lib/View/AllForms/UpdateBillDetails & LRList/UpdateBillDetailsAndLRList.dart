@@ -31,6 +31,7 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
   String lrDropdown = lr.first;
 
   List<TextEditingController> warehouseController = [];
+
   List<TextEditingController> directBillingController = [];
   List<TextEditingController> tollTaxController = [];
   List<TextEditingController> loadingUnloadingController = [];
@@ -73,9 +74,14 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
   TextEditingController freightAmount = TextEditingController();
   TextEditingController totalFreightAmount = TextEditingController();
   TextEditingController allRemark = TextEditingController();
-
-
+  List receivedLrTable = [];
+  List selectedRows = [];
+  List selectedReceivedLRIdsList = [];
+  int selectedReceivedLRId = -1;
+  TextEditingController searchController = TextEditingController();
+  String lrId = '0';
   int freshload = 0;
+  bool update = false;
 
   getBillsLRsApiFunc() {
     setState(() {
@@ -172,6 +178,30 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
         setState(() {
           freshload = 0;
         });
+      }
+    });
+  }
+
+  addLrApiFunc(){
+    addLrApi().then((value) {
+      var info = jsonDecode(value);
+      if(info['success'] == true){
+        AlertBoxes.flushBarSuccessMessage(info['message'], context);
+      }else{
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+      }
+    });
+  }
+  billUpdateApiFunc(int index){
+    billUpdateApi(index).then((value) {
+      var info = jsonDecode(value);
+      if(info['success'] == true){
+        setState(() {
+          update = false;
+        });
+        AlertBoxes.flushBarSuccessMessage(info['message'], context);
+      }else{
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
       }
     });
   }
@@ -461,7 +491,9 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
               ElevatedButton(
                 style: ButtonStyles.customiseButton(
                     Colors.grey.shade300, Colors.grey.shade900, 100.0, 43.0),
-                onPressed: () {},
+                onPressed: () {
+                  getReceivedLRsApiFunc();
+                },
                 child: Row(
                   children: const [Icon(Icons.add), Text('Add LR')],
                 ),
@@ -645,7 +677,9 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
                                       ThemeColors.whiteColor,
                                       10.0,
                                       40.0),
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    billUpdateApiFunc(index);
+                                  },
                                   child: const Text('Update'),
                                 ),
                               ],
@@ -694,12 +728,348 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
     );
   }
 
+  /// ============== START ==================
+
+  _showLrList(){
+    showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setState)
+            {
+              // for checkbox
+              onSelectedRow(bool selected, int index) {
+                setState(() {
+                  if (selected) {
+                    selectedRows.add(index);
+                    selectedReceivedLRIdsList.add(receivedLrTable[index]['lr_id']);
+                    selectedReceivedLRId = receivedLrTable[index]['lr_id'];
+                  } else {
+                    selectedRows.remove(index);
+                    selectedReceivedLRIdsList.remove(receivedLrTable[index]['lr_id']);
+                    // selectedPayableId = -1;
+                  }
+                });
+              }
+
+              return
+                  AlertDialog(
+                    title: Row(
+                      children: [
+                        const Text("Add New Lr"),
+                        const Spacer(),
+                        Expanded(
+                          child: TextFormField(
+                              onFieldSubmitted: (value) {
+                                Navigator.pop(context);
+                                getReceivedLRsApiFunc();
+                              },
+                              controller: searchController,
+                              decoration: UiDecoration().outlineTextFieldDecoration(
+                                  'Search', ThemeColors.primaryColor)),
+                        ),
+                      ],
+                    ),
+                    content: Column(
+                      children: [
+                        buildDataTable(onSelectedRow, context),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text("Total Records: ${GlobalVariable.totalRecords}"),
+
+                            const SizedBox(
+                              width: 100,
+                            ),
+
+                            // First Page Button
+                            IconButton(
+                                onPressed: !GlobalVariable.prev
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    GlobalVariable.currentPage = 1;
+                                    Navigator.pop(context);
+                                    getReceivedLRsApiFunc();
+                                  });
+                                },
+                                icon: const Icon(Icons.first_page)),
+
+                            // Prev Button
+                            IconButton(
+                                onPressed: GlobalVariable.prev == false
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    GlobalVariable.currentPage > 1
+                                        ? GlobalVariable.currentPage--
+                                        : GlobalVariable.currentPage = 1;
+                                    Navigator.pop(context);
+                                    getReceivedLRsApiFunc();
+                                  });
+                                },
+                                icon: const Icon(Icons.chevron_left)),
+
+                            const SizedBox(
+                              width: 30,
+                            ),
+
+                            // Next Button
+                            IconButton(
+                                onPressed: GlobalVariable.next == false
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    GlobalVariable.currentPage++;
+                                    Navigator.pop(context);
+                                    getReceivedLRsApiFunc();
+                                  });
+                                },
+                                icon: const Icon(Icons.chevron_right)),
+
+                            // Last Page Button
+                            IconButton(
+                                onPressed: !GlobalVariable.next
+                                    ? null
+                                    : () {
+                                  setState(() {
+                                    GlobalVariable.currentPage =
+                                        GlobalVariable.totalPages;
+                                    Navigator.pop(context);
+                                    getReceivedLRsApiFunc();
+                                  });
+                                },
+                                icon: const Icon(Icons.last_page)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    actions: [
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ThemeColors.primary,
+                          shape: BeveledRectangleBorder(
+                              borderRadius: BorderRadius.circular(4)),
+                        ),
+                        onPressed: () {
+
+                          Navigator.pop(context);
+
+                        },
+                        child: const Text("Close"),
+                      )
+                    ],
+                  );
+
+                });
+        },
+    );
+  }
+
+
+
+  Widget buildDataTable(onSelectedRow, BuildContext context) {
+    double totalDebit = 0;
+    double totalCredit = 0;
+    return
+      /* transactionList.isEmpty ? const Center(child: Text("Select Leger"),) : */
+      freshload == 1
+          ? const Center(child: CircularProgressIndicator())
+          : DataTable(
+          columnSpacing: 55,
+          showCheckboxColumn: false,
+          columns: const [
+            // DataColumn(label: Text('Mark',overflow: TextOverflow.ellipsis,)),
+            DataColumn(
+                label: Text(
+                  'LR No ',
+                  overflow: TextOverflow.ellipsis,
+                )),
+            DataColumn(
+                label: Text(
+                  'Ledger',
+                  overflow: TextOverflow.ellipsis,
+                )),
+            DataColumn(
+                label: Text(
+                  'vehicle No',
+                  overflow: TextOverflow.ellipsis,
+                )),
+            DataColumn(
+                label: Text(
+                  'From Location',
+                  overflow: TextOverflow.ellipsis,
+                )),
+            DataColumn(
+                label: Text(
+                  'TO Location',
+                  overflow: TextOverflow.ellipsis,
+                )),
+            DataColumn(
+                label: Text(
+                  'LR Date',
+                  overflow: TextOverflow.ellipsis,
+                )),
+            DataColumn(
+                label: Text(
+                  'Received Date',
+                  overflow: TextOverflow.ellipsis,
+                )),
+            DataColumn(
+                label: Text(
+                  'Add LR',
+                  overflow: TextOverflow.ellipsis,
+                )),
+          ],
+          rows: List.generate(receivedLrTable.length, (index) {
+            // Calculate totals
+            // if (transactionList[0][index]['debit'] != null) {
+            //   totalDebit += double.parse( transactionList[0][index]['debit'] == '' ? '0' : transactionList[0][index]['debit'] );
+            // }
+            // if (transactionList[0][index]['credit'] != null) {
+            //   totalCredit += double.parse(transactionList[0][index]['credit'] == '' ? '0' : transactionList[0][index]['credit']);
+            // }
+            return DataRow(
+                selected: selectedRows.contains(index),
+                onSelectChanged: (value) {
+                  lrId = value! ?  receivedLrTable[index]['lr_id'].toString(): '0';
+                  onSelectedRow(value!, index);
+                },
+                color: index == 0 || index % 2 == 0
+                    ? MaterialStatePropertyAll(ThemeColors.tableRowColor)
+                    : const MaterialStatePropertyAll(Colors.white),
+                cells: [
+                  // DataCell(Text("data")),
+                  DataCell(Text(
+                      receivedLrTable[index]['lr_number'].toString())),
+                  DataCell(Text(
+                      receivedLrTable[index]['ledger_title'].toString())),
+                  DataCell(Text(receivedLrTable[index]['vehicle_number']
+                      .toString())),
+                  DataCell(Text(receivedLrTable[index]['from_location']
+                      .toString())),
+                  DataCell(Text(
+                      receivedLrTable[index]['to_location'].toString())),
+                  DataCell(
+                      Text(receivedLrTable[index]['lr_date'].toString())),
+                  DataCell(Text(receivedLrTable[index]['received_date']
+                      .toString())),
+
+                  DataCell(ElevatedButton(
+                    style: ButtonStyles.customiseButton(
+                        ThemeColors.primary,
+                        ThemeColors.whiteColor,
+                        70.0,
+                        35.0),
+                    onPressed: () {
+                      lrId =  receivedLrTable[index]['lr_id'].toString();
+                      addLrApiFunc();
+                      Navigator.pop(context);
+                      getBillsLRsApiFunc();
+                    },
+                    child: const Text('+ Add'),
+                  )),
+                ]);
+          })
+      );
+  }
+
+  /// lr table api
+  getReceivedLRsApiFunc() {
+    setState(() {
+      freshload = 1;
+    });
+    getReceivedLRsApi().then((value) {
+      var info = jsonDecode(value);
+      print(info);
+      if (info['success'] == true) {
+        receivedLrTable.clear();
+        GlobalVariable.totalRecords = info['total_records'];
+        GlobalVariable.prev = info['prev'];
+        GlobalVariable.next = info['next'];
+        GlobalVariable.totalPages = info['total_pages'];
+        receivedLrTable.addAll(info['data']);
+        setState(() {
+          freshload = 0;
+          _showLrList();
+        });
+      } else {
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+      }
+    });
+  }
+
+  /// Received Lr Api
+  Future getReceivedLRsApi() async {
+    var url =
+    Uri.parse('${GlobalVariable.billingBaseURL}Reports/GetReceivedLRs?'
+        'limit=10&'
+        'page=${GlobalVariable.currentPage}&'
+        // 'from_date=${fromDateApi.text}&'
+        // 'to_date=${toDateApi.text}&'
+        // 'ledger_id=$ledgerIDDropdown&'
+        // 'vehcicle_type=$vehicleId&'
+        'keyword=${searchController.text}');
+    var headers = {'token': Auth.token};
+    var response = await http.get(url, headers: headers);
+    return response.body.toString();
+  }
+
+  /// ============== END ==================
+
   /// billed lr API
   Future getBillsLRsApi() async {
     var url = Uri.parse(
         '${GlobalVariable.billingBaseURL}Billing/GetBillsLR?bill_id=${widget.billNumber}');
     var headers = {'token': Auth.token};
     var response = await http.get(url, headers: headers);
+    return response.body.toString();
+  }
+
+  /// add lr api
+  Future addLrApi()async{
+    var url = Uri.parse("${GlobalVariable.billingBaseURL}Billing/AddLR?"
+        "bill_number=${widget.billNumber}&"
+        "lr_id=$lrId");
+    var headers = {
+      'token': Auth.token
+    };
+    var response = await http.post(url, headers: headers);
+    return response.body.toString();
+  }
+
+  /// update
+  Future billUpdateApi(int index) async {
+    var headers = {'token' : Auth.token};
+    var url = Uri.parse("${GlobalVariable.billingBaseURL}Account/LedgersStore");
+    var body = {
+      // TODO : State Code | ledger_date
+
+      'detention_in_warehouse': warehouseController[index].text,
+      'detention_for_direct_billing': directBillingController[index].text,
+      'toll_tax': tollTaxController[index].text,
+      'loading_unloading_amount': loadingUnloadingController[index].text,
+      'multipoint_load_unloading': multipointLoadUnloadController[index].text,
+      'incentive': incentiveController[index].text,
+      'freight_adjustment_addition': freightAdjustmentAdditionController[index].text,
+      'late_penalty': latePenaltyController[index].text,
+      'freight_adjustment_subtraction': freightAdjustmentSubtractionController[index].text,
+      'damage': damageController[index].text,
+      'halt_days': haltDaysController[index].text,
+      'halt_amount': haltAmountController[index].text,
+      'no_of_pallets': noOfPalletsController[index].text,
+      'lr_invoice_number': companyInvoiceNoController[index].text,
+      // 'detention_in_warehouse': loadingDateController[index].text,
+      'reported_date': reportedDateController[index].text,
+      'unloaded_date': unloadedDateController[index].text,
+      'freight_amount': freightAmountController[index].text,
+      'total_freight_amount': totalFreightAmountController[index].text,
+      // 'detention_in_warehouse': allRemarkController[index].text,
+
+
+
+    };
+    var response = await http.post(headers:headers , url , body: body);
     return response.body.toString();
   }
 }

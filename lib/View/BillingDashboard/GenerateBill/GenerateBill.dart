@@ -69,25 +69,26 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
   int selectedReceivedLRId = -1;
 
   // ####LedgerList dropdown ###
-  String? ledgerID = '';
   String? ledgerIDDropdown = '';
   String? oppLedgerID;
   List ledgerList = [];
   List payList = [];
   List<String> ledgerTitleList = [];
   ValueNotifier<String> ledgerDropdownValue = ValueNotifier('');
-  ValueNotifier<String> ledgerDropdownValue2 = ValueNotifier('');
+  ValueNotifier<String> ledgerDropdownValuePopup = ValueNotifier('');
   TextEditingController dateControllerApi = TextEditingController();
   TextEditingController dayController = TextEditingController();
   TextEditingController monthController = TextEditingController();
   TextEditingController yearController = TextEditingController();
 
-  String? ledgerIDDropdown2 = '';
+  String? ledgerIDDropdownPopup = '';
 
   // ### Vehiclelist Dropdown ###
-  List vehicleDropdown = [];
+  List vehicleNoListWithId = [];
   List<String> vehicleNoList = [];
   String vehicleDropdownValue = '';
+  var vehicleId = '';
+  List<List<dynamic>> exportData = [];
 
   final _formKey = GlobalKey<FormState>();
 
@@ -141,10 +142,10 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
       print(info);
 
       if (info['success'] == true) {
-        vehicleDropdown.clear();
+        vehicleNoListWithId.clear();
         vehicleNoList.clear();
 
-        vehicleDropdown.addAll(info['data']);
+        vehicleNoListWithId.addAll(info['data']);
 
         // adding ledger title in "$ledgerTitleList" for dropdown
         for (int i = 0; i < info['data'].length; i++) {
@@ -164,22 +165,18 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
         Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-               UpdateBillDetailsAndLRList(
-                   billNumber: billNumber.text,
-                   ledger: ledgerDropdownValue2.value,
-                    date: "${dayControllerBill.text}-${monthControllerBill.text}-${yearControllerBill.text}",
-               ),
+              builder: (context) => UpdateBillDetailsAndLRList(
+                billNumber: billNumber.text,
+                ledger: ledgerDropdownValuePopup.value,
+                date:
+                    "${dayControllerBill.text}-${monthControllerBill.text}-${yearControllerBill.text}",
+              ),
             ));
-
-      }
-      else {
+      } else {
         AlertBoxes.flushBarErrorMessage(info['message'], context);
       }
     });
   }
-
-
 
   @override
   void initState() {
@@ -195,7 +192,6 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
 
   @override
   Widget build(BuildContext context) {
-    final DataTableSource data = MyData(context, setState);
     return Scaffold(
       appBar: UiDecoration.appBar("Generate Bill"),
       body: Container(
@@ -212,17 +208,39 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                   /// Vehicle dropdown
                   Expanded(
                     child: SearchDropdownWidget(
-                        dropdownList: vehicleNoList,
-                        hintText: "Select Vehicle",
-                        onChanged: (value) {
-                          // This is called when the user selects an item.
-                          setState(() {
-                            vehicleDropdownValue = value!;
-                            // vehicleWiseReportApiFunc();
-                          });
-                        },
-                        selectedItem: vehicleDropdownValue),
+                      maxHeight: 500,
+                      dropdownList: vehicleNoList,
+                      hintText: 'Select Vehicle',
+                      onChanged: (value) {
+                        setStateMounted(() {
+                          vehicleDropdownValue = value!;
+                          for (int i = 0; i < vehicleNoListWithId.length; i++) {
+                            if (vehicleDropdownValue ==
+                                vehicleNoListWithId[i]['vehicle_number']) {
+                              vehicleId = vehicleNoListWithId[i]['vehicle_id'].toString();
+                            }
+                          }
+                          // print('dsafadsf::::$vehicleId');
+
+                          // advAtmTransactionListApiFunc();
+                          getReceivedLRsApiFunc();
+                        });
+                      },
+                      selectedItem: vehicleDropdownValue,
+                    ),
                   ),
+                  //   SearchDropdownWidget(
+                  //       dropdownList: vehicleNoList,
+                  //       hintText: "Select Vehicle",
+                  //       onChanged: (value) {
+                  //         // This is called when the user selects an item.
+                  //         setState(() {
+                  //           vehicleDropdownValue = value!;
+                  //           // vehicleWiseReportApiFunc();
+                  //         });
+                  //       },
+                  //       selectedItem: vehicleDropdownValue),
+                  // ),
                   // UiDecoration().dropDown(
                   //     1,
                   //     DropdownButton<String>(
@@ -272,10 +290,8 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
 
                           // getting ledger id
                           for (int i = 0; i < ledgerList.length; i++) {
-                            if (ledgerDropdownValue.value ==
-                                ledgerList[i]['ledger_title']) {
-                              ledgerIDDropdown =
-                                  ledgerList[i]['ledger_id'].toString();
+                            if (ledgerDropdownValue.value == ledgerList[i]['ledger_title']) {
+                              ledgerIDDropdown = ledgerList[i]['ledger_id'].toString();
                             }
                           }
                         },
@@ -427,7 +443,10 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                         ThemeColors.whiteColor,
                         100.0,
                         42.0),
-                    onPressed: () {},
+                    onPressed: () {
+                      getReceivedLRsApiFunc();
+                      print('sdfgsdg:${toDateApi.text}');
+                    },
                     child: const Text("Filter"),
                   ),
                   const SizedBox(width: 10),
@@ -438,173 +457,178 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                       print(
                           '4r3li3srdafdasf; ${selectedReceivedLRIdsList.join(",")}');
 
-                     if(selectedRows.isEmpty){
-                       AlertBoxes.flushBarErrorMessage("Please Select Atleast One LR", context);
-                     }else{
-                       showDialog(
-                         context: context,
-                         builder: (context) {
-                           return AlertDialog(
-                             scrollable: true,
-                             titlePadding: const EdgeInsets.all(10),
-                             title: Row(
-                               crossAxisAlignment: CrossAxisAlignment.start,
-                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                               children: [
-                                 TextDecorationClass().heading('Generate Bill'),
-                                 InkWell(
-                                   onTap: () {
+                      if (selectedRows.isEmpty) {
+                        AlertBoxes.flushBarErrorMessage(
+                            "Please Select Atleast One LR", context);
+                      } else {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              scrollable: true,
+                              titlePadding: const EdgeInsets.all(10),
+                              title: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  TextDecorationClass()
+                                      .heading('Generate Bill'),
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Icon(
+                                      CupertinoIcons.xmark,
+                                      color: Colors.grey,
+                                      size: 15,
+                                    ),
+                                  )
+                                ],
+                              ),
+                              contentPadding: const EdgeInsets.all(20),
+                              actions: [
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                      backgroundColor: ThemeColors.primary),
+                                  onPressed: () {
+                                    getGenerateBillApiFunc();
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Generate'),
+                                ),
+                                ElevatedButton(
+                                  style: ButtonStyles.customiseButton(
+                                      ThemeColors.grey200,
+                                      ThemeColors.grey,
+                                      100.0,
+                                      37.0),
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Close'),
+                                ),
+                              ],
+                              content: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ///Billing Ledger
+                                        TextDecorationClass()
+                                            .heading1('Select Billing Ledger'),
+                                        SizedBox(
+                                          width: 300,
+                                          child: ValueListenableBuilder(
+                                            valueListenable:
+                                                ledgerDropdownValuePopup,
+                                            builder: (context, value2, child) =>
+                                                SearchDropdownWidget(
+                                              dropdownList: ledgerTitleList,
+                                              hintText: "Select Ledger",
+                                              onChanged: (value) {
+                                                ledgerDropdownValuePopup.value =
+                                                    value!;
 
-                                     Navigator.pop(context);
-                                   },
-                                   child: const Icon(
-                                     CupertinoIcons.xmark,
-                                     color: Colors.grey,
-                                     size: 15,
-                                   ),
-                                 )
-                               ],
-                             ),
-                             contentPadding: const EdgeInsets.all(20),
-                             actions: [
-                               ElevatedButton(
-                                 style: ElevatedButton.styleFrom(
-                                     backgroundColor: ThemeColors.primary),
-                                 onPressed: () {
-                                   getGenerateBillApiFunc();
-                                   Navigator.pop(context);
-                                 },
-                                 child: const Text('Generate'),
-                               ),
-                               ElevatedButton(
-                                 style: ButtonStyles.customiseButton(
-                                     ThemeColors.grey200,
-                                     ThemeColors.grey,
-                                     100.0,
-                                     37.0),
-                                 onPressed: () {
-                                   Navigator.pop(context);
-                                 },
-                                 child: const Text('Close'),
-                               ),
-                             ],
-                             content: Row(
-                               mainAxisAlignment: MainAxisAlignment.start,
-                               children: [
-                                 Expanded(
-                                   flex: 2,
-                                   child: Column(
-                                     crossAxisAlignment:
-                                     CrossAxisAlignment.start,
-                                     children: [
-                                       ///Billing Ledger
-                                       TextDecorationClass()
-                                           .heading1('Select Billing Ledger'),
-                                       SizedBox(
-                                         width: 300,
-                                         child: ValueListenableBuilder(
-                                           valueListenable: ledgerDropdownValue2,
-                                           builder: (context, value2, child) =>
-                                               SearchDropdownWidget(
-                                                 dropdownList: ledgerTitleList,
-                                                 hintText: "Select Ledger",
-                                                 onChanged: (value) {
-                                                   ledgerDropdownValue2.value =
-                                                   value!;
-
-                                                   // getting ledger id
-                                                   for (int i = 0;
-                                                   i < ledgerList.length;
-                                                   i++) {
-                                                     if (ledgerDropdownValue2
-                                                         .value ==
-                                                         ledgerList[i]
-                                                         ['ledger_title']) {
-                                                       ledgerIDDropdown2 =
-                                                           ledgerList[i]['ledger_id']
-                                                               .toString();
-                                                     }
-                                                   }
-                                                 },
-                                                 selectedItem: value2,
-                                                 showSearchBox: true,
-                                               ),
-                                         ),
-                                       ),
-                                     ],
-                                   ),
-                                 ),
-                                 widthBox30(),
-                                 Expanded(
-                                   flex: 1,
-                                   child: Column(
-                                     crossAxisAlignment:
-                                     CrossAxisAlignment.start,
-                                     children: [
-                                       TextDecorationClass()
-                                           .heading1("Billing Date"),
-                                       DateFieldWidget2(
-                                           dayController: dayControllerBill,
-                                           monthController: monthControllerBill,
-                                           yearController: yearControllerBill,
-                                           dateControllerApi: apiControllerBill),
-                                       // TextFormField(
-                                       //   readOnly: true,
-                                       //   controller: billingDate,
-                                       //   decoration: UiDecoration()
-                                       //       .outlineTextFieldDecoration(
-                                       //       "Billing Date", Colors.grey),
-                                       //   validator: (value) {
-                                       //     if (value == null || value.isEmpty) {
-                                       //       return 'Tenure To Field is Required';
-                                       //     }
-                                       //     return null;
-                                       //   },
-                                       //   onTap: () {
-                                       //     UiDecoration()
-                                       //         .showDatePickerDecoration(context)
-                                       //         .then((value) {
-                                       //       setState(() {
-                                       //         String month = value.month
-                                       //             .toString()
-                                       //             .padLeft(2, '0');
-                                       //         String day = value.day
-                                       //             .toString()
-                                       //             .padLeft(2, '0');
-                                       //         billingDate.text =
-                                       //         "$day-$month-${value.year}";
-                                       //       });
-                                       //     });
-                                       //   },
-                                       // ),
-                                     ],
-                                   ),
-                                 ),
-                                 widthBox30(),
-                                 Expanded(
-                                     flex: 2,
-                                     child: Column(
-                                       crossAxisAlignment:
-                                       CrossAxisAlignment.start,
-                                       children: [
-                                         TextDecorationClass()
-                                             .heading1('Bill Number'),
-                                         TextFormField(
-                                           controller: billNumber,
-                                           decoration: UiDecoration()
-                                               .outlineTextFieldDecoration(
-                                               "Bill Number",
-                                               ThemeColors.primaryColor),
-                                         ),
-                                       ],
-                                     )),
-                               ],
-                             ),
-                           );
-                         },
-                       );
-
-                     }
+                                                // getting ledger id
+                                                for (int i = 0;
+                                                    i < ledgerList.length;
+                                                    i++) {
+                                                  if (ledgerDropdownValuePopup
+                                                          .value ==
+                                                      ledgerList[i]
+                                                          ['ledger_title']) {
+                                                    ledgerIDDropdownPopup =
+                                                        ledgerList[i]
+                                                                ['ledger_id']
+                                                            .toString();
+                                                  }
+                                                }
+                                              },
+                                              selectedItem: value2,
+                                              showSearchBox: true,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  widthBox30(),
+                                  Expanded(
+                                    flex: 1,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        TextDecorationClass()
+                                            .heading1("Billing Date"),
+                                        DateFieldWidget2(
+                                            dayController: dayControllerBill,
+                                            monthController:
+                                                monthControllerBill,
+                                            yearController: yearControllerBill,
+                                            dateControllerApi:
+                                                apiControllerBill),
+                                        // TextFormField(
+                                        //   readOnly: true,
+                                        //   controller: billingDate,
+                                        //   decoration: UiDecoration()
+                                        //       .outlineTextFieldDecoration(
+                                        //       "Billing Date", Colors.grey),
+                                        //   validator: (value) {
+                                        //     if (value == null || value.isEmpty) {
+                                        //       return 'Tenure To Field is Required';
+                                        //     }
+                                        //     return null;
+                                        //   },
+                                        //   onTap: () {
+                                        //     UiDecoration()
+                                        //         .showDatePickerDecoration(context)
+                                        //         .then((value) {
+                                        //       setState(() {
+                                        //         String month = value.month
+                                        //             .toString()
+                                        //             .padLeft(2, '0');
+                                        //         String day = value.day
+                                        //             .toString()
+                                        //             .padLeft(2, '0');
+                                        //         billingDate.text =
+                                        //         "$day-$month-${value.year}";
+                                        //       });
+                                        //     });
+                                        //   },
+                                        // ),
+                                      ],
+                                    ),
+                                  ),
+                                  widthBox30(),
+                                  Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          TextDecorationClass()
+                                              .heading1('Bill Number'),
+                                          TextFormField(
+                                            controller: billNumber,
+                                            decoration: UiDecoration()
+                                                .outlineTextFieldDecoration(
+                                                    "Bill Number",
+                                                    ThemeColors.primaryColor),
+                                          ),
+                                        ],
+                                      )),
+                                ],
+                              ),
+                            );
+                          },
+                        );
+                      }
                     },
                     child: const Text('Generate Bill'),
                   ),
@@ -648,7 +672,12 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                       //   width: 10,
                       // ),
                       BStyles().button(
-                          onPressed: () {},
+                          onPressed: () {
+                           setState(() {
+                             addDataToExport();
+                           });
+                           UiDecoration().excelFunc(exportData);
+                          },
                           'Excel',
                           'Export to Excel',
                           "assets/excel.png"),
@@ -656,7 +685,12 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                         width: 10,
                       ),
                       BStyles().button(
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              addDataToExport();
+                            });
+                            UiDecoration().pdfFunc(exportData);
+                          },
                           'PDF',
                           'Export to PDF',
                           "assets/pdf.png"),
@@ -664,7 +698,12 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                         width: 10,
                       ),
                       BStyles().button(
-                          onPressed: () {},
+                          onPressed: () {
+                            setState(() {
+                              addDataToExport();
+                            });
+                            UiDecoration().generatePrintDocument(exportData);
+                          },
                           'Print',
                           'Print',
                           "assets/print.png"),
@@ -674,6 +713,9 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                   TextDecorationClass().subHeading2('Search : '),
                   Expanded(
                     child: TextFormField(
+                        onChanged: (value) {
+                          getReceivedLRsApiFunc();
+                        },
                         controller: searchController,
                         decoration: UiDecoration().outlineTextFieldDecoration(
                             'Search', ThemeColors.primaryColor)),
@@ -724,6 +766,8 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                     child: SingleChildScrollView(child: buildDataTable()),
                   ),
                 ),
+
+                // pagination
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -872,8 +916,8 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                             receivedLrTable[index]['lr_number'].toString())),
                         DataCell(Text(
                             receivedLrTable[index]['ledger_title'].toString())),
-                        DataCell(Text(
-                            receivedLrTable[index]['vehicle_number'].toString())),
+                        DataCell(Text(receivedLrTable[index]['vehicle_number']
+                            .toString())),
                         DataCell(Text(receivedLrTable[index]['from_location']
                             .toString())),
                         DataCell(Text(
@@ -890,34 +934,29 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                               70.0,
                               35.0),
                           onPressed: () {},
-                          child: const Text('Doc 1'),
+                          child: const Text('Documents'),
                         )),
                       ]);
                 })
-                //     +[
-                //   DataRow(cells: [
-                //     const DataCell(Text('')),
-                //     const DataCell(Text('')),
-                //     const DataCell(Text('')),
-                //     const DataCell(Text('')),
-                //     DataCell(
-                //       Text(
-                //         'Total Debit: $totalDebit',
-                //         style: const TextStyle(fontWeight: FontWeight.bold),
-                //       ),
-                //     ),
-                //     DataCell(
-                //       Text(
-                //         'Total Credit: $totalCredit',
-                //         style: const TextStyle(fontWeight: FontWeight.bold),
-                //       ),
-                //     ),
-                //     const DataCell(Text('')),
-                //     const DataCell(Text('')),
-                //   ],
-                //   ),
-                // ]
                 );
+  }
+
+  addDataToExport(){
+    exportData.clear();
+    exportData=[
+      ['LR No','Ledger', 'Vehicle No', 'From Location', 'To Location', 'Received Date'],
+    ];
+    for (int index = 0; index < receivedLrTable.length; index++) {
+      List<String> rowData = [
+        receivedLrTable[index]['lr_number'].toString(),
+        receivedLrTable[index]['ledger_title'].toString(),
+        receivedLrTable[index]['vehicle_number'].toString(),
+        receivedLrTable[index]['from_location'].toString(),
+        receivedLrTable[index]['to_location'].toString(),
+        receivedLrTable[index]['received_date'].toString(),
+      ];
+      exportData.add(rowData);
+    }
   }
 
   // for checkbox
@@ -937,19 +976,26 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
 
   /// Received Lr Api
   Future getReceivedLRsApi() async {
-    var url = Uri.parse(
-        '${GlobalVariable.billingBaseURL}Reports/GetReceivedLRs?limit=${entriesDropdownValue}&page=${GlobalVariable.currentPage}&from_date&to_date=&ledger_id&vehcicle_type&keyword');
+    var url =
+        Uri.parse('${GlobalVariable.billingBaseURL}Reports/GetReceivedLRs?'
+            'limit=${entriesDropdownValue}&'
+            'page=${GlobalVariable.currentPage}&'
+            'from_date=${fromDateApi.text}&'
+            'to_date=${toDateApi.text}&'
+            'ledger_id=$ledgerIDDropdown&'
+            'vehcicle_type=$vehicleId&'
+            'keyword=${searchController.text}');
     var headers = {'token': Auth.token};
     var response = await http.get(url, headers: headers);
     return response.body.toString();
   }
 
   /// #####  getGenerateBillApi   ####
-  ///
+  //
   Future getGenerateBillApi() async {
     var url = Uri.parse('${GlobalVariable.billingBaseURL}Billing/GenerateBill?'
         'lr_ids=${selectedReceivedLRIdsList.join(",")}&'
-        'ledger_id=$ledgerIDDropdown2&'
+        'ledger_id=$ledgerIDDropdownPopup&'
         'bill_number=${billNumber.text}&'
         'total_freight_amount=23000&'
         'billed_by=${GlobalVariable.entryBy}&'
@@ -958,92 +1004,10 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
     var response = await http.get(url, headers: headers);
     return response.body.toString();
   }
-}
 
-class MyData extends DataTableSource {
-  final BuildContext context;
-  Function setState;
-  List ind = [0, 2, 2, 0, 5, 0, 2, 6, 8, 10];
-
-  MyData(this.context, this.setState);
-
-  final List<Map<String, dynamic>> _data = List.generate(
-      200,
-      (index) => {
-            "date": "27-09-2018",
-            "particulars": "HDFC Bank ATM A/C",
-            "voucher_no": Random().nextInt(10000),
-            "voucher_type": "BPCL",
-            "debit": "${Random().nextInt(7354)}",
-            "credit": Random().nextInt(10000),
-            "narration": "-",
-            "entry_by": "Naveed Khan",
-          });
-
-  @override
-  DataRow? getRow(int index) {
-    Widget isChecked(bool isChecked, onChanged) {
-      return Checkbox(
-        fillColor: const MaterialStatePropertyAll(ThemeColors.primaryColor),
-        value: isChecked,
-        onChanged: onChanged,
-      );
+  void setStateMounted(VoidCallback fn) {
+    if (mounted) {
+      setState(fn);
     }
-
-    return DataRow(
-      color: MaterialStatePropertyAll(index == 0 || index % 2 == 0
-          ? ThemeColors.tableRowColor
-          : Colors.white),
-      cells: [
-        DataCell(onTap: () {
-          setState(() {
-            ind.add(index);
-            print(ind);
-          });
-        },
-            isChecked(index == ind[index], (value) {
-              setState(() {
-                // ind = index;
-                print("$ind");
-              });
-            })
-            // Checkbox(
-            //   fillColor: const MaterialStatePropertyAll(ThemeColors.primaryColor),
-            //   value: isChecked,
-            //   onChanged: (value) {
-            //     setState((){
-            //       print(index);
-            //       isChecked = value!;
-            //     });
-            //   },)
-            ),
-        DataCell(Text(_data[index]['lr_no'].toString())),
-        DataCell(Text(_data[index]['ledger'].toString())),
-        DataCell(Text(_data[index]['vehicle_no'].toString())),
-        DataCell(Text(_data[index]['from_location'].toString())),
-        DataCell(Text(_data[index]['to_location'].toString())),
-        DataCell(Text(_data[index]['lr_date'].toString())),
-        DataCell(Text(_data[index]['received_date'].toString())),
-        DataCell(ElevatedButton(
-          style: ButtonStyles.customiseButton(
-              ThemeColors.primary, ThemeColors.whiteColor, 70.0, 35.0),
-          onPressed: () {},
-          child: const Text('Doc 1'),
-        )),
-      ],
-      onSelectChanged: (value) {},
-    );
   }
-
-  @override
-  // TODO: implement isRowCountApproximate
-  bool get isRowCountApproximate => false;
-
-  @override
-  // TODO: implement rowCount
-  int get rowCount => _data.length;
-
-  @override
-  // TODO: implement selectedRowCount
-  int get selectedRowCount => 0;
 }
