@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pfc/AlertBoxes.dart';
 import 'package:pfc/GlobalVariable/GlobalVariable.dart';
+import 'package:pfc/View/AllForms/UpdateBillDetails%20&%20LRList/BillsPrint.dart';
 import 'package:pfc/auth/auth.dart';
 import 'package:pfc/responsive.dart';
 import 'package:pfc/utility/Widgets/SearchDropdownWidget.dart';
@@ -278,7 +279,10 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
                 'Print',
                 'Print',
                 "assets/print.png",
-                onPressed: () {},
+                onPressed: () {
+                  //
+                  generateBillAndPrint();
+                },
               ),
             ],
           ),

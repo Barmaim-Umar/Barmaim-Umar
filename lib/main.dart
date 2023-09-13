@@ -3,6 +3,7 @@ import 'package:pfc/Provider/AnimationProvider.dart';
 import 'package:pfc/Provider/DropDownProvider.dart';
 import 'package:pfc/Provider/ProviderOfFragment.dart';
 import 'package:pfc/View/BillingDashboard/BillList/datatable.dart';
+import 'package:pfc/View/BillingDashboard/GenerateBill/GenerateBill.dart';
 import 'package:pfc/View/Login/LoginScreen.dart';
 import 'package:pfc/View/SideBar/SideBar.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
           // home: const SideBar()),
           // home: const TableExample()),
           home: const LoginScreen()),
-          // home: const NewLedger()),
+          // home: const GenerateBill()),
     );
   }
 }
