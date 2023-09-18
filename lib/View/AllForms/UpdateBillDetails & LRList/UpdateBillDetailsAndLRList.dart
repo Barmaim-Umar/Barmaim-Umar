@@ -1067,7 +1067,27 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
   /// update
   Future billUpdateApi(int index) async {
     var headers = {'token' : Auth.token};
-    var url = Uri.parse("${GlobalVariable.billingBaseURL}Account/LedgersStore");
+    var url = Uri.parse("${GlobalVariable.billingBaseURL}Billing/UpdateBillLR?"
+        // "lr_id=${}&"
+        "detention_in_warehouse=${warehouseController[index].text}&"
+        "halt_amount=${haltAmountController[index].text}&"
+        "detention_for_direct_billing=${ directBillingController[index].text}&"
+        "toll_tax=${tollTaxController[index].text}&"
+        "loading_unloading_amount=${loadingUnloadingController[index].text}&"
+        "multipoint_load_unloading=${multipointLoadUnloadController[index].text}&"
+        "incentive=${ incentiveController[index].text}&"
+        "freight_adjustment_addition=${freightAdjustmentAdditionController[index].text}&"
+        "late_penalty=${latePenaltyController[index].text}&"
+        "freight_adjustment_subtraction=${freightAdjustmentSubtractionController[index].text}&"
+        "damage=${damageController[index].text}&"
+        "halt_days=${haltDaysController[index].text}&"
+        "freight_amount=${freightAmountController[index].text}&"
+        "total_freight_amount=${totalFreightAmountController[index].text}&"
+        // "lr_date=${}&"
+        "no_of_pallets=${noOfPalletsController[index].text}&"
+        "lr_invoice_number=${companyInvoiceNoController[index].text}&"
+        "reported_date=${ reportedDateController[index].text}&"
+        "unloaded_date=${ unloadedDateController[index].text}");
     var body = {
       // TODO : State Code | ledger_date
 
