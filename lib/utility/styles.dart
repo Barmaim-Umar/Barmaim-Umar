@@ -4304,7 +4304,7 @@ class FormWidgets {
   }
 
   // title and textField in Column
-  Widget numberField2(String title, String hintText, TextEditingController controller, BuildContext context, {optional = false, validLabel}) {
+  Widget numberField2(String title, String hintText, TextEditingController controller, BuildContext context, {optional = false, validLabel, void Function(String)? onChanged}) {
     return Column(
       children: [
         Column(
@@ -4353,6 +4353,8 @@ class FormWidgets {
                 }
                 return null;
               },
+              //
+              onChanged: onChanged,
             ),
           ],
         ),

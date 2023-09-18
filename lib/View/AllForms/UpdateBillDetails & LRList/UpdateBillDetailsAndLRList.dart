@@ -83,6 +83,8 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
   String lrId = '0';
   int freshload = 0;
   bool update = false;
+  String totalFreightAmountSum = '';
+  double sum = 0.0;
 
   getBillsLRsApiFunc() {
     setState(() {
@@ -281,7 +283,12 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
                 "assets/print.png",
                 onPressed: () {
                   //
-                  generateBillAndPrint();
+                  generateBillAndPrint(
+                      BillsLRsData: BillsLRsData,
+                      billNo: widget.billNumber,
+                    date: widget.date,
+                    ledger: widget.ledger
+                  );
                 },
               ),
             ],
@@ -383,7 +390,7 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
             children: [
               Row(
                 children: [
-                  UiDecoration().totalAmountLabel('Total Freight Amount',
+                  UiDecoration().totalAmountLabel(totalFreightAmountSum,
                       backgroundColor: ThemeColors.primary,
                       foregroundColor: ThemeColors.whiteColor,
                       background: true),
@@ -659,15 +666,20 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
                           widthBox10(),
                           Expanded(
                               flex: 1,
-                              child: FormWidgets().formDetails8(
-                                  "Freight Amount", "0", freightAmountController[index])),
+                              child: FormWidgets().numberField2(
+                                  "Freight Amount", "0", freightAmountController[index], context)),
                           widthBox10(),
                           Expanded(
                               flex: 1,
-                              child: FormWidgets().formDetails8(
+                              child: FormWidgets().numberField2(
                                   "Total Freight Amount",
                                   "0",
-                                  totalFreightAmountController[index])),
+                                  totalFreightAmountController[index],
+                                  context,
+                                onChanged: (value) {
+                                  totalFreightAmountAddition(index);
+                                },
+                              )),
                           widthBox10(),
                           Expanded(
                             flex: 1,
@@ -976,6 +988,16 @@ class _UpdateBillDetailsAndLRListState extends State<UpdateBillDetailsAndLRList>
                 ]);
           })
       );
+  }
+
+  // Calculating Total Freight Amount
+  totalFreightAmountAddition(int i){
+
+      sum += double.parse(totalFreightAmountController[i].text.isEmpty ? '0.0' : totalFreightAmountController[i].text);
+
+    setState(() {
+      totalFreightAmountSum = sum.toString();
+    });
   }
 
   /// lr table api
