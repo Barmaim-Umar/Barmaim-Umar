@@ -98,7 +98,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
     });
     getReceivedLRsApi().then((value) {
       var info = jsonDecode(value);
-      print(info);
+      // print(info);
       if (info['success'] == true) {
         receivedLrTable.clear();
         GlobalVariable.totalRecords = info['total_records'];
@@ -139,7 +139,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
   vehicleDropdownApiFunc() {
     ServiceWrapper().vehicleFetchApi().then((value) {
       var info = jsonDecode(value);
-      print(info);
+      // print(info);
 
       if (info['success'] == true) {
         vehicleNoListWithId.clear();
@@ -217,7 +217,8 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                           for (int i = 0; i < vehicleNoListWithId.length; i++) {
                             if (vehicleDropdownValue ==
                                 vehicleNoListWithId[i]['vehicle_number']) {
-                              vehicleId = vehicleNoListWithId[i]['vehicle_id'].toString();
+                              vehicleId = vehicleNoListWithId[i]['vehicle_id']
+                                  .toString();
                             }
                           }
                           // print('dsafadsf::::$vehicleId');
@@ -229,50 +230,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                       selectedItem: vehicleDropdownValue,
                     ),
                   ),
-                  //   SearchDropdownWidget(
-                  //       dropdownList: vehicleNoList,
-                  //       hintText: "Select Vehicle",
-                  //       onChanged: (value) {
-                  //         // This is called when the user selects an item.
-                  //         setState(() {
-                  //           vehicleDropdownValue = value!;
-                  //           // vehicleWiseReportApiFunc();
-                  //         });
-                  //       },
-                  //       selectedItem: vehicleDropdownValue),
-                  // ),
-                  // UiDecoration().dropDown(
-                  //     1,
-                  //     DropdownButton<String>(
-                  //       borderRadius: BorderRadius.circular(5),
-                  //       dropdownColor: ThemeColors.dropdownColor,
-                  //       underline: Container(
-                  //         decoration: const BoxDecoration(border: Border()),
-                  //       ),
-                  //       isExpanded: true,
-                  //       hint: Text(
-                  //         'Select Vehicle Type',
-                  //         style:
-                  //         TextStyle(color: ThemeColors.dropdownTextColor),
-                  //       ),
-                  //       icon: DropdownDecoration().dropdownIcon(),
-                  //       value: vehicleTypeDropdownValue,
-                  //       elevation: 16,
-                  //       style: DropdownDecoration().dropdownTextStyle(),
-                  //       onChanged: (String? newValue) {
-                  //         // This is called when the user selects an item.
-                  //         setState(() {
-                  //           vehicleTypeDropdownValue = newValue!;
-                  //         });
-                  //       },
-                  //       items: vehicleTypeList
-                  //           .map<DropdownMenuItem<String>>((String value) {
-                  //         return DropdownMenuItem<String>(
-                  //           value: value.toString(),
-                  //           child: Center(child: Text(value)),
-                  //         );
-                  //       }).toList(),
-                  //     )),
+
                   SizedBox(
                     width: 10,
                   ),
@@ -290,8 +248,10 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
 
                           // getting ledger id
                           for (int i = 0; i < ledgerList.length; i++) {
-                            if (ledgerDropdownValue.value == ledgerList[i]['ledger_title']) {
-                              ledgerIDDropdown = ledgerList[i]['ledger_id'].toString();
+                            if (ledgerDropdownValue.value ==
+                                ledgerList[i]['ledger_title']) {
+                              ledgerIDDropdown =
+                                  ledgerList[i]['ledger_id'].toString();
                             }
                           }
                         },
@@ -300,53 +260,6 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                       ),
                     ),
                   ),
-                  // Expanded(
-                  //   child: SearchDropdownWidget(
-                  //     dropdownList:  ledgerList,
-                  //     hintText:  'Select Ledger',
-                  //     onChanged: (String? newValue) {
-                  //       // This is called when the user selects an item.
-                  //       setState(() {
-                  //         ledgerDropdownValue = newValue!;
-                  //       });
-                  //     },
-                  //     selectedItem:  ledgerDropdownValue,
-                  //     maxHeight: 150,
-                  //     showSearchBox: false,
-                  //   ),
-                  // ),
-                  // UiDecoration().dropDown(
-                  //     1,
-                  //     DropdownButton<String>(
-                  //       borderRadius: BorderRadius.circular(5),
-                  //       dropdownColor: ThemeColors.dropdownColor,
-                  //       underline: Container(
-                  //         decoration: const BoxDecoration(border: Border()),
-                  //       ),
-                  //       isExpanded: true,
-                  //       hint: Text(
-                  //         'Select Ledger',
-                  //         style:
-                  //         TextStyle(color: ThemeColors.dropdownTextColor),
-                  //       ),
-                  //       icon: DropdownDecoration().dropdownIcon(),
-                  //       value: ledgerDropdownValue,
-                  //       elevation: 16,
-                  //       style: DropdownDecoration().dropdownTextStyle(),
-                  //       onChanged: (String? newValue) {
-                  //         // This is called when the user selects an item.
-                  //         setState(() {
-                  //           ledgerDropdownValue = newValue!;
-                  //         });
-                  //       },
-                  //       items: ledgerList
-                  //           .map<DropdownMenuItem<String>>((String value) {
-                  //         return DropdownMenuItem<String>(
-                  //           value: value.toString(),
-                  //           child: Center(child: Text(value)),
-                  //         );
-                  //       }).toList(),
-                  //     )),
 
                   const SizedBox(
                     width: 10,
@@ -385,57 +298,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                       ],
                     ),
                   ),
-                  // fromDate
-                  // Expanded(
-                  //   child: SizedBox(
-                  //     height: 35,
-                  //     child: TextFormField(
-                  //       readOnly: true,
-                  //       controller: fromDateController,
-                  //       decoration:
-                  //       UiDecoration().dateFieldDecoration('From Date'),
-                  //       onTap: () {
-                  //         UiDecoration()
-                  //             .showDatePickerDecoration(context)
-                  //             .then((value) {
-                  //           setState(() {
-                  //             String month =
-                  //             value.month.toString().padLeft(2, '0');
-                  //             String day = value.day.toString().padLeft(2, '0');
-                  //             fromDateController.text =
-                  //             "$day-$month-${value.year}";
-                  //           });
-                  //         });
-                  //       },
-                  //     ),
-                  //   ),
-                  // ),
                   widthBox10(),
-                  // toDate
-                  // Expanded(
-                  //   child: SizedBox(
-                  //     height: 35,
-                  //     child: TextFormField(
-                  //       readOnly: true,
-                  //       controller: toDateController,
-                  //       decoration:
-                  //       UiDecoration().dateFieldDecoration('To Date'),
-                  //       onTap: () {
-                  //         UiDecoration()
-                  //             .showDatePickerDecoration(context)
-                  //             .then((value) {
-                  //           setState(() {
-                  //             String month =
-                  //             value.month.toString().padLeft(2, '0');
-                  //             String day = value.day.toString().padLeft(2, '0');
-                  //             toDateController.text =
-                  //             "$day-$month-${value.year}";
-                  //           });
-                  //         });
-                  //       },
-                  //     ),
-                  //   ),
-                  // ),
                   widthBox10(),
                   ElevatedButton(
                     style: ButtonStyles.customiseButton(
@@ -445,7 +308,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                         42.0),
                     onPressed: () {
                       getReceivedLRsApiFunc();
-                      print('sdfgsdg:${toDateApi.text}');
+                      // print('sdfgsdg:${toDateApi.text}');
                     },
                     child: const Text("Filter"),
                   ),
@@ -454,8 +317,6 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                     style: ButtonStyles.customiseButton(ThemeColors.orangeColor,
                         ThemeColors.whiteColor, 150.0, 40.0),
                     onPressed: () {
-                      print(
-                          '4r3li3srdafdasf; ${selectedReceivedLRIdsList.join(",")}');
 
                       if (selectedRows.isEmpty) {
                         AlertBoxes.flushBarErrorMessage(
@@ -573,35 +434,7 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                                             yearController: yearControllerBill,
                                             dateControllerApi:
                                                 apiControllerBill),
-                                        // TextFormField(
-                                        //   readOnly: true,
-                                        //   controller: billingDate,
-                                        //   decoration: UiDecoration()
-                                        //       .outlineTextFieldDecoration(
-                                        //       "Billing Date", Colors.grey),
-                                        //   validator: (value) {
-                                        //     if (value == null || value.isEmpty) {
-                                        //       return 'Tenure To Field is Required';
-                                        //     }
-                                        //     return null;
-                                        //   },
-                                        //   onTap: () {
-                                        //     UiDecoration()
-                                        //         .showDatePickerDecoration(context)
-                                        //         .then((value) {
-                                        //       setState(() {
-                                        //         String month = value.month
-                                        //             .toString()
-                                        //             .padLeft(2, '0');
-                                        //         String day = value.day
-                                        //             .toString()
-                                        //             .padLeft(2, '0');
-                                        //         billingDate.text =
-                                        //         "$day-$month-${value.year}";
-                                        //       });
-                                        //     });
-                                        //   },
-                                        // ),
+
                                       ],
                                     ),
                                   ),
@@ -673,40 +506,29 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                       // ),
                       BStyles().button(
                           onPressed: () {
-                           setState(() {
-                             addDataToExport();
-                           });
-                           UiDecoration().excelFunc(exportData);
-                          },
-                          'Excel',
-                          'Export to Excel',
-                          "assets/excel.png"),
+                        setState(() {
+                          addDataToExport();
+                        });
+                        UiDecoration().excelFunc(exportData);
+                      }, 'Excel', 'Export to Excel', "assets/excel.png"),
                       const SizedBox(
                         width: 10,
                       ),
-                      BStyles().button(
-                          onPressed: () {
-                            setState(() {
-                              addDataToExport();
-                            });
-                            UiDecoration().pdfFunc(exportData);
-                          },
-                          'PDF',
-                          'Export to PDF',
-                          "assets/pdf.png"),
+                      BStyles().button(onPressed: () {
+                        setState(() {
+                          addDataToExport();
+                        });
+                        UiDecoration().pdfFunc(exportData);
+                      }, 'PDF', 'Export to PDF', "assets/pdf.png"),
                       const SizedBox(
                         width: 10,
                       ),
-                      BStyles().button(
-                          onPressed: () {
-                            setState(() {
-                              addDataToExport();
-                            });
-                            UiDecoration().generatePrintDocument(exportData);
-                          },
-                          'Print',
-                          'Print',
-                          "assets/print.png"),
+                      BStyles().button(onPressed: () {
+                        setState(() {
+                          addDataToExport();
+                        });
+                        UiDecoration().generatePrintDocument(exportData);
+                      }, 'Print', 'Print', "assets/print.png"),
                     ],
                   ),
                   const Spacer(),
@@ -937,14 +759,20 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
                           child: const Text('Documents'),
                         )),
                       ]);
-                })
-                );
+                }));
   }
 
-  addDataToExport(){
+  addDataToExport() {
     exportData.clear();
-    exportData=[
-      ['LR No','Ledger', 'Vehicle No', 'From Location', 'To Location', 'Received Date'],
+    exportData = [
+      [
+        'LR No',
+        'Ledger',
+        'Vehicle No',
+        'From Location',
+        'To Location',
+        'Received Date'
+      ],
     ];
     for (int index = 0; index < receivedLrTable.length; index++) {
       List<String> rowData = [
@@ -983,9 +811,10 @@ class _GenerateBillState extends State<GenerateBill> with Utility {
             'from_date=${fromDateApi.text}&'
             'to_date=${toDateApi.text}&'
             'ledger_id=$ledgerIDDropdown&'
-            'vehcicle_type=$vehicleId&'
+            'vehicle_id=$vehicleId&'
             'keyword=${searchController.text}');
     var headers = {'token': Auth.token};
+    print(url);
     var response = await http.get(url, headers: headers);
     return response.body.toString();
   }

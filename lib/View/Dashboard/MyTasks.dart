@@ -107,7 +107,7 @@ class _MyTaskScreenState extends State<MyTaskScreen> {
       var info = jsonDecode(value);
       if (info['success'] == true) {
         TaskData.addAll(info['data']) ;
-        print(TaskData);
+        // print(TaskData);
         setState(() {
           freshLoad3 = 0;
         });
@@ -173,7 +173,7 @@ class _MyTaskScreenState extends State<MyTaskScreen> {
     var url = Uri.parse(
         '${GlobalVariable.baseURL}Employee/EmployeeTaskList?user_id=${GlobalVariable.userId}');
     var response = await http.get(url, headers: headers);
-    print('response: ${response.body}');
+    // print('response: ${response.body}');
     return response.body.toString();
   }
   Widget _buildTaskList() {

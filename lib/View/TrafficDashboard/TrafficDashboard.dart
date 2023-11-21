@@ -44,7 +44,7 @@ class _TrafficDashboardState extends State<TrafficDashboard>
   bool loaderForVehicleInfo = false;
 
   normalVehicleListApiFunc() {
-    print('normalVehicle');
+    // print('normalVehicle');
     setStateMounted(() {
       normalVehicleList.isEmpty ? freshLoad = 1 : freshLoad = 0;
       freshLoad2 = 1;
@@ -56,7 +56,8 @@ class _TrafficDashboardState extends State<TrafficDashboard>
         // normalVehicleList.clear();
         normalVehicleList.addAll(info['data']);
         totalPages = info['total_pages'];
-        print('CurrentPage$currentPage');
+        // print('CurrentPage:    $normalVehicleList');
+        // print('object yyyyyyyNormal :    $normalVehicleList');
         setStateMounted(() {
           freshLoad = 0;
           freshLoad2 = 0;
@@ -72,7 +73,7 @@ class _TrafficDashboardState extends State<TrafficDashboard>
   }
 
   issueVehicleListApiFunc() {
-    print('issueVehicle');
+    // print('issueVehicle');
     setStateMounted(() {
       freshLoad = 1;
     });
@@ -90,11 +91,12 @@ class _TrafficDashboardState extends State<TrafficDashboard>
           freshLoad = 1;
         });
       }
+      // print('object yyyyyyy888 :    $issueVehicleList');
     });
   }
 
   vehicleDetailsApiFunc() {
-    print('vehicleDetails');
+
     setStateMounted(() {
       loaderForVehicleInfo = true;
       activityId = null;
@@ -110,13 +112,16 @@ class _TrafficDashboardState extends State<TrafficDashboard>
           vehicleDetailList.clear();
           vehicleRoutesList.clear();
           vehicleDetailList.addAll(info2['data']);
+          // print('978546132546 vehicle:     $vehicleDetailList');
+          // print('978546132546:     $info2');
           activityId = vehicleDetailList.containsKey('current')
               ? vehicleDetailList['current']['activity_id']
               : activityId;
           activityStatus = vehicleDetailList.containsKey('current')
               ? vehicleDetailList['current']['activity_status']
               : activityStatus;
-          print(activityStatus);
+          print("activity status :   $activityStatus");
+          // print('978546132546 vehicle:     $vehicleDetailList');
           freshLoad = 0;
         });
       } else {
@@ -126,6 +131,7 @@ class _TrafficDashboardState extends State<TrafficDashboard>
           freshLoad = 1;
         });
       }
+      print('978546132546 vehicle djf:     $vehicleDetailList');
     });
   }
 
@@ -152,7 +158,8 @@ class _TrafficDashboardState extends State<TrafficDashboard>
 
   @override
   void initState() {
-    print(activityId);
+
+    // print(" rfewrtfwre :  $activityId");
     setStateMounted(() {
       GlobalVariable.currentPage = 1;
     });
@@ -161,6 +168,9 @@ class _TrafficDashboardState extends State<TrafficDashboard>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _buttonProvider = Provider.of<ButtonProvider>(context, listen: false);
       _buttonProvider.startJumping();
+      // print('object yyyyyyy :    $normalVehicleList');
+      // print('object yyyyyyy :    $issueVehicleList');
+      // print('978546132546:     $vehicleDetailList');
     });
 
     _animationController =
@@ -318,14 +328,18 @@ class _TrafficDashboardState extends State<TrafficDashboard>
                                                       child: ListTile(
                                                         onTap: () {
                                                           setStateMounted(() {
-                                                            vehicleId = null;
+                                                            // vehicleId = null;
                                                             vehicleId =
                                                                 issueVehicleList[
                                                                         index][
                                                                     'vehicle_id'];
                                                           });
-                                                          // vehicleDetailsApiFunc();
+                                                          vehicleDetailsApiFunc();
                                                           // vehicleActivityApiFunc();
+                                                          vehicleDocumentListApiFunc();
+                                                          print(
+                                                              "  issue vehicle id $vehicleId");
+                                                          // print('issueVehicleList:  $issueVehicleList');
                                                         },
                                                         mouseCursor:
                                                             SystemMouseCursors
@@ -452,10 +466,10 @@ class _TrafficDashboardState extends State<TrafficDashboard>
                                                                 vehicleDetailsApiFunc();
                                                                 vehicleDocumentListApiFunc();
                                                                 print(
-                                                                    activityId);
+                                                                    'activity id  $activityId');
                                                                 // vehicleActivityApiFunc();
                                                                 print(
-                                                                    vehicleId);
+                                                                    ' normal vehicle id  $vehicleId');
                                                               },
                                                               title: Text(
                                                                 normalVehicleList[
@@ -958,7 +972,7 @@ class _TrafficDashboardState extends State<TrafficDashboard>
                                                                             'current']
                                                                         [index][
                                                                     'activity_id'];
-                                                            print(activityId);
+                                                            print(' normal tab  $activityId');
                                                             // vehicleActivityApiFunc();
                                                           },
                                                           title: Text(

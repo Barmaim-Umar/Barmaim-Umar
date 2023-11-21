@@ -11,7 +11,7 @@ import 'package:pfc/utility/styles.dart';
 import 'package:http/http.dart' as http;
 
 class Traffic extends StatefulWidget {
-const  Traffic({
+  const  Traffic({
     Key? key,
   }) : super(key: key);
 
@@ -35,7 +35,7 @@ class _TrafficState extends State<Traffic> {
   TextEditingController monthControllerResolvedIssue = TextEditingController(
       text: GlobalVariable.displayDate.month.toString().padLeft(2, '0'));
   TextEditingController yearControllerResolvedIssue =
-      TextEditingController(text: GlobalVariable.displayDate.year.toString());
+  TextEditingController(text: GlobalVariable.displayDate.year.toString());
 
   resolvedIssueApiFunc() {
     reolveIssue().then((value) {
@@ -60,11 +60,11 @@ class _TrafficState extends State<Traffic> {
           itemCount: 5,
           gridDelegate: SliverSimpleGridDelegateWithFixedCrossAxisCount(
               crossAxisCount:
-                  screenSize.width <= 1000 && screenSize.width >= 825
-                      ? 3
-                      : screenSize.width <= 825
-                          ? 2
-                          : 4),
+              screenSize.width <= 1000 && screenSize.width >= 825
+                  ? 3
+                  : screenSize.width <= 825
+                  ? 2
+                  : 4),
           itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.all(5.0),
               child: ClipRRect(
@@ -74,9 +74,9 @@ class _TrafficState extends State<Traffic> {
                   child: ExpansionTile(
                     initiallyExpanded: isExpanded,
                     backgroundColor:
-                        getVehicleStatusColor('Diverted'.toLowerCase()),
+                    getVehicleStatusColor('Diverted'.toLowerCase()),
                     collapsedBackgroundColor:
-                        getVehicleStatusColor('Diverted'.toLowerCase()),
+                    getVehicleStatusColor('Diverted'.toLowerCase()),
                     collapsedTextColor: Colors.white,
                     collapsedIconColor: Colors.white,
                     textColor: Colors.white,
@@ -87,14 +87,14 @@ class _TrafficState extends State<Traffic> {
                       children: [
                         Expanded(
                             child: Text(
-                          'MH20 CP 2058',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                              'MH20 CP 2058',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              overflow: TextOverflow.ellipsis,
 
-                        )),
+                            )),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -121,7 +121,7 @@ class _TrafficState extends State<Traffic> {
                                   Expanded(
                                       flex: 2,
                                       child:
-                                          Text('T & D Galiakot Containers')),
+                                      Text('T & D Galiakot Containers')),
                                 ],
                               ),
                               Row(
@@ -130,7 +130,7 @@ class _TrafficState extends State<Traffic> {
                                   Expanded(
                                       flex: 2,
                                       child:
-                                          Text('Babar Azam')),
+                                      Text('Babar Azam')),
                                 ],
                               ),
                               Row(
@@ -149,7 +149,7 @@ class _TrafficState extends State<Traffic> {
                               Row(
                                 children: [
                                   Expanded(
-                                    flex: 2,
+                                      flex: 2,
                                       child: Text('Major Issue Remarks :')),
                                   Expanded(
 
@@ -174,86 +174,86 @@ class _TrafficState extends State<Traffic> {
                                         context: context,
                                         builder: (BuildContext context) =>
                                             AlertDialog(
-                                          titlePadding: const EdgeInsets.all(8),
-                                          title: const Text("Resolve Issue"),
-                                          contentPadding: const EdgeInsets.all(8),
-                                          content: SingleChildScrollView(
-                                            child: Row(
-                                              crossAxisAlignment:
+                                              titlePadding: const EdgeInsets.all(8),
+                                              title: const Text("Resolve Issue"),
+                                              contentPadding: const EdgeInsets.all(8),
+                                              content: SingleChildScrollView(
+                                                child: Row(
+                                                  crossAxisAlignment:
                                                   CrossAxisAlignment.start,
-                                              mainAxisAlignment:
+                                                  mainAxisAlignment:
                                                   MainAxisAlignment.start,
-                                              children: [
-                                                Expanded(
-                                                  flex: 2,
-                                                  child: SizedBox(
-                                                    // height: 35,
-                                                    child: TextFormField(
-                                                      controller:
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 2,
+                                                      child: SizedBox(
+                                                        // height: 35,
+                                                        child: TextFormField(
+                                                          controller:
                                                           resolvedIssueRemark,
-                                                      maxLines: 3,
-                                                      style: const TextStyle(
-                                                          fontSize: 15),
-                                                      decoration: UiDecoration()
-                                                          .outlineTextFieldDecoration(
-                                                        "Enter Remark",
-                                                        Colors.grey,
+                                                          maxLines: 3,
+                                                          style: const TextStyle(
+                                                              fontSize: 15),
+                                                          decoration: UiDecoration()
+                                                              .outlineTextFieldDecoration(
+                                                            "Enter Remark",
+                                                            Colors.grey,
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment:
+                                                    const SizedBox(width: 10),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment:
                                                         CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
                                                         children: [
-                                                          TextDecorationClass()
-                                                              .heading1('Date'),
-                                                          const Text(
-                                                            "  dd-mm-yyyy",
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                color:
+                                                          Row(
+                                                            children: [
+                                                              TextDecorationClass()
+                                                                  .heading1('Date'),
+                                                              const Text(
+                                                                "  dd-mm-yyyy",
+                                                                style: TextStyle(
+                                                                    fontSize: 12,
+                                                                    color:
                                                                     Colors.grey),
-                                                          )
+                                                              )
+                                                            ],
+                                                          ),
+                                                          DateFieldWidget2(
+                                                              dayController:
+                                                              dayControllerResolvedIssue,
+                                                              monthController:
+                                                              monthControllerResolvedIssue,
+                                                              yearController:
+                                                              yearControllerResolvedIssue,
+                                                              dateControllerApi:
+                                                              fromDateApi),
                                                         ],
                                                       ),
-                                                      DateFieldWidget2(
-                                                          dayController:
-                                                              dayControllerResolvedIssue,
-                                                          monthController:
-                                                              monthControllerResolvedIssue,
-                                                          yearController:
-                                                              yearControllerResolvedIssue,
-                                                          dateControllerApi:
-                                                              fromDateApi),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              actions: <Widget>[
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(
+                                                      context, 'Cancel'),
+                                                  child: const Text('Cancel'),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    // resolvedIssueApiFunc();
+                                                    setState(() {
+                                                      resolvedIssueRemark.clear();
+                                                    });
+                                                    Navigator.pop(context);
+                                                  },
+                                                  child: const Text('OK'),
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(
-                                                  context, 'Cancel'),
-                                              child: const Text('Cancel'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                // resolvedIssueApiFunc();
-                                                setState(() {
-                                                  resolvedIssueRemark.clear();
-                                                });
-                                                Navigator.pop(context);
-                                              },
-                                              child: const Text('OK'),
-                                            ),
-                                          ],
-                                        ),
                                       );
                                     },
                                     child: Text('Resolve'),
@@ -292,7 +292,7 @@ class _TrafficState extends State<Traffic> {
       'Content-Type': 'application/x-www-form-urlencoded'
     };
     var url =
-        Uri.parse('${GlobalVariable.trafficBaseURL}apis/MejorIssueVehicle');
+    Uri.parse('${GlobalVariable.trafficBaseURL}apis/MejorIssueVehicle');
     var body = {
       'remark': resolvedIssueRemark.text,
       'entry_by': GlobalVariable.entryBy.toString(),

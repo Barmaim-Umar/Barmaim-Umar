@@ -9,6 +9,7 @@ import 'package:pfc/AlertBoxes.dart';
 import 'package:pfc/GlobalVariable/GlobalVariable.dart';
 import 'package:pfc/Provider/DropDownProvider.dart';
 import 'package:pfc/responsive.dart';
+import 'package:pfc/utility/Widgets/DateFieldWidget2.dart';
 import 'package:pfc/utility/global.dart';
 import 'package:provider/provider.dart';
 import 'Validation.dart';
@@ -1122,13 +1123,7 @@ class UiDecoration {
       color: color == false ? Colors.white : color,
       borderRadius: BorderRadius.circular(8),
       border: Border.all(color: Colors.grey.shade300),
-      // boxShadow: [
-      //   BoxShadow(
-      //       color: Colors.grey.shade300,
-      //       spreadRadius: .5,
-      //       blurRadius: 1
-      //   )
-      // ]
+
     );
   }
 
@@ -1308,61 +1303,61 @@ class UiDecoration {
   }
 
   Widget inTransit(String cityName, String title, Widget vehicleName) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(7),
-      child: ListTileTheme(
-        dense: true,
-        child: ExpansionTile(
-          initiallyExpanded: isExpanded,
-          backgroundColor: const Color(0xff337ab7),
-          collapsedBackgroundColor: const Color(0xff337ab7),
-          collapsedTextColor: Colors.white,
-          collapsedIconColor: Colors.white,
-          textColor: Colors.white,
-          iconColor: Colors.white,
-          childrenPadding: const EdgeInsets.all(0),
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                  child: Text(
-                cityName,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w500,
-                ),
-                overflow: TextOverflow.ellipsis,
-              )),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-              //   children: [
-              //     inTransitCircle(0xff491fee),
-              //     const SizedBox(width: 5,),
-              //     inTransitCircle(0xff22a948),
-              //     const SizedBox(width: 5,),
-              //     inTransitCircle(0xffff0707),
-              //   ],
-              // ),
-            ],
-          ),
-          children: [
-            // OnRoad
-            ExpansionTile(
-              initiallyExpanded: true,
-              collapsedBackgroundColor: const Color(0xffdff0d8),
-              backgroundColor: const Color(0xffdff0d8),
-              title: TextDecorationClass().inTransitText(title),
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(7),
+        child: ListTileTheme(
+          dense: true,
+          child: ExpansionTile(
+            initiallyExpanded: isExpanded,
+            backgroundColor: const Color(0xff337ab7),
+            collapsedBackgroundColor: const Color(0xff337ab7),
+            collapsedTextColor: Colors.white,
+            collapsedIconColor: Colors.white,
+            textColor: Colors.white,
+            iconColor: Colors.white,
+            childrenPadding: const EdgeInsets.all(0),
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                inTransitOnRoad(),
-                inTransitOnRoad(),
-                inTransitOnRoad(),
-                inTransitOnRoad(),
-                inTransitOnRoad(),
+                Expanded(
+                    child: Text(
+                  cityName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                )),
+                // Row(
+                //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+                //   children: [
+                //     inTransitCircle(0xff491fee),
+                //     const SizedBox(width: 5,),
+                //     inTransitCircle(0xff22a948),
+                //     const SizedBox(width: 5,),
+                //     inTransitCircle(0xffff0707),
+                //   ],
+                // ),
               ],
             ),
-          ],
+            children: [
+              // OnRoad
+              ExpansionTile(
+                initiallyExpanded: true,
+                collapsedBackgroundColor: const Color(0xffdff0d8),
+                backgroundColor: const Color(0xffdff0d8),
+                title: TextDecorationClass().inTransitText(title),
+                children: [
+                  inTransitOnRoad(),
+                  inTransitOnRoad(),
+                  inTransitOnRoad(),
+                  inTransitOnRoad(),
+                  inTransitOnRoad(),
+                ],
+              ),
+            ],
+          ),
         ),
-      ),
-    );
+      );
   }
 
   Widget inTransitCircle(color1) {
@@ -2935,6 +2930,144 @@ class UiDecoration {
   }
 
 
+  /// Treaffic dashBoard
+
+Widget vehicleInfoCardFunc(BuildContext context, {
+  required void Function()? onPressedButton,
+  required String vehicleNumber,
+  required String companyName,
+  required String vehicleStatus,
+  required String driverName,
+  required String fromLocation,
+  required String toLocation,
+  required String remarksName,
+  required String majorIssueRemark,
+  required String buttonName,
+  required Color backgroundColor,
+  required Color collapsedBackgroundColor,
+  required Color collapsedTextColor,
+  required Color collapsedIconColor,
+
+}){
+    return  ClipRRect(
+      borderRadius: BorderRadius.circular(7),
+      child: ListTileTheme(
+        dense: true,
+        child: ExpansionTile(
+          initiallyExpanded: isExpanded,
+          backgroundColor: backgroundColor,
+          collapsedBackgroundColor: collapsedBackgroundColor,
+          collapsedTextColor: collapsedTextColor,
+          collapsedIconColor:collapsedIconColor,
+          textColor: Colors.white,
+          iconColor: Colors.white,
+          childrenPadding: const EdgeInsets.all(0),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                  child: Text(
+                    vehicleNumber,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w400,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+
+                  )),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(vehicleStatus),
+                ],
+              ),
+            ],
+          ),
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 0.5),
+              color: ThemeColors.whiteColor,
+              width: double.infinity,
+              alignment: Alignment.center,
+              height: 180,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text('Company Name :')),
+                        Expanded(
+                            flex: 2,
+                            child:
+                            Text(companyName)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Text('Driver Name :')),
+                        Expanded(
+                            flex: 2,
+                            child:
+                            Text(driverName)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Text('From Location :')),
+                        Expanded(
+                            flex: 2, child: Text(fromLocation)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Text('To Location :')),
+                        Expanded(flex: 2, child: Text(toLocation)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: Text(remarksName)),
+                        Expanded(
+
+                            flex: 2,
+                            child: Text(majorIssueRemark)),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight ,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right:20),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: ThemeColors.greenColor,
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 18, horizontal: 10)),
+                          onPressed: onPressedButton,
+                          child: Text(buttonName),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+}
+
+
+
+
 }
 
 //==========================================================================
@@ -3309,7 +3442,7 @@ class FormWidgets {
     );
   }
 
-  Widget formDetails8(String title, String hintText, TextEditingController controller, {maxLines}) {
+  Widget formDetails8(String title, String hintText, TextEditingController controller, {maxLines, void Function(String)? onChanged}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -3322,6 +3455,7 @@ class FormWidgets {
           controller: controller,
           maxLines: maxLines,
           decoration: UiDecoration().outlineTextFieldDecoration(hintText, ThemeColors.grey),
+          onChanged: onChanged,
         ),
       ],
     );

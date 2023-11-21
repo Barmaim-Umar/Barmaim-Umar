@@ -6,13 +6,36 @@ import 'package:pdf/widgets.dart' as pw;
 
 Future<void> generateBillAndPrint({
   List<dynamic> BillsLRsData= const [],
+  List freightAmount =const [],
   String billNo = '',
   String date = '',
   String ledger = '',
+
+  List haltAmount = const [],
+  List loadingUnloadingCharge = const[],
+  /// Addition Total
+  String detentionInWarehouse = '',
+  String directBillingTotal = '',
+  String tollTaxTotal = '',
+  String loadingUnloadingTotal = '',
+  String multiLoadUnloadTotal = '',
+  String incentiveTotal = '',
+  String freightAdjustmentAdditionTotal = '',
+
+  ///sutraction Total
+  String latePenaltyTotal = '',
+  String adjustmentSubtractionTotal = '',
+  String damageTotal = '',
+
+  /// grand Total
+  String totalFreightAmount = '',
+  String totalFreightAddition = '',
+  String totalFreightSubtraction = '',
+  String grandTotalAmount = '',
 }) async {
   final pdf = pw.Document();
 
-  print("tbggb: ${BillsLRsData}");
+  // print("tbggb: ${BillsLRsData}");
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
@@ -116,7 +139,7 @@ Future<void> generateBillAndPrint({
                                 style: pw.TextStyle(
                                   fontSize: 10,
                                 )),
-                            pw.Text('billData.address',
+                            pw.Text('GSt Number',
                                 style: pw.TextStyle(
                                   fontSize: 10,
                                 )),
@@ -144,7 +167,7 @@ Future<void> generateBillAndPrint({
                                 fontSize: 10,
                                 fontWeight: pw.FontWeight.bold)),
                         pw.Text(
-                            'Plot No. 96/97 & 100 Sublayout IV, Growth Centre Industrial Area, Hassantaluk573201',
+                            BillsLRsData[0]['ledger_address'].toString(),
                             style: pw.TextStyle(
                                 fontSize: 10,
                                 fontWeight: pw.FontWeight.bold)),
@@ -254,7 +277,7 @@ Future<void> generateBillAndPrint({
                                     ),
                                     pw.Padding(
                                       padding: const pw.EdgeInsets.all(3.0),
-                                      child: pw.Text('17-08-2023',
+                                      child: pw.Text(BillsLRsData[index]['ledger_date'].toString(),
                                           style: pw.TextStyle(
                                             fontSize: 10,
                                           ),
@@ -262,7 +285,7 @@ Future<void> generateBillAndPrint({
                                     ),
                                     pw.Padding(
                                       padding: const pw.EdgeInsets.all(3.0),
-                                      child: pw.Text('NL01AG46163',
+                                      child: pw.Text(BillsLRsData[index]['vehicle_number'].toString(),
                                           style: pw.TextStyle(
                                             fontSize: 10,
                                           ),
@@ -270,7 +293,7 @@ Future<void> generateBillAndPrint({
                                     ),
                                     pw.Padding(
                                       padding: const pw.EdgeInsets.all(3.0),
-                                      child: pw.Text('37FT HQ',
+                                      child: pw.Text(BillsLRsData[index]['vehicle_type'].toString(),
                                           style: pw.TextStyle(
                                             fontSize: 10,
                                           ),
@@ -278,7 +301,7 @@ Future<void> generateBillAndPrint({
                                     ),
                                     pw.Padding(
                                       padding: const pw.EdgeInsets.all(3.0),
-                                      child: pw.Text(' inv No 25 ',
+                                      child: pw.Text(BillsLRsData[index]['lr_invoice_number'].toString(),
                                           style: pw.TextStyle(
                                             fontSize: 10,
                                           ),
@@ -286,7 +309,7 @@ Future<void> generateBillAndPrint({
                                     ),
                                     pw.Padding(
                                       padding: const pw.EdgeInsets.all(3.0),
-                                      child: pw.Text('Aurangabad',
+                                      child: pw.Text(BillsLRsData[index]['from_location'].toString(),
                                           style: pw.TextStyle(
                                             fontSize: 10,
                                           ),
@@ -294,7 +317,7 @@ Future<void> generateBillAndPrint({
                                     ),
                                     pw.Padding(
                                       padding: const pw.EdgeInsets.all(3.0),
-                                      child: pw.Text('Hassan',
+                                      child: pw.Text(BillsLRsData[index]['to_location'].toString(),
                                           style: pw.TextStyle(
                                             fontSize: 10,
                                           ),
@@ -302,7 +325,7 @@ Future<void> generateBillAndPrint({
                                     ),
                                     pw.Padding(
                                       padding: const pw.EdgeInsets.all(3.0),
-                                      child: pw.Text('73200',
+                                      child: pw.Text(BillsLRsData[index]['total_freight_amount'].toString(),
                                           style: pw.TextStyle(
                                             fontWeight: pw.FontWeight.bold,
                                             fontSize: 10,
@@ -312,28 +335,38 @@ Future<void> generateBillAndPrint({
                                   ]),
                                 ]),
                             pw.Table(
-                                columnWidths: {
-                                  0: pw.FlexColumnWidth(1),
-                                  1: pw.FlexColumnWidth(1),
-                                  2: pw.FlexColumnWidth(1),
-                                },
+                                // columnWidths: {
+                                //   0: pw.FlexColumnWidth(1),
+                                //   1: pw.FlexColumnWidth(1),
+                                //   2: pw.FlexColumnWidth(1),
+                                // },
                                 tableWidth: pw.TableWidth.max,
                                 border: pw.TableBorder.all(color: PdfColors.black),
                                 children: [
                                   pw.TableRow(children: [
-                                    pw.Text('Freight Amount:72300   ',
+                                    pw.Text('Freight Amount:${freightAmount[index].text}',
                                         style: pw.TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 11,
                                         ),
                                         textAlign: pw.TextAlign.center),
-                                    pw.Text('Reported Date : 21-08-2023   ',
+                                    if(haltAmount[index].text!='0')pw.Text('Halt Amount:${haltAmount[index].text}',
                                         style: pw.TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 11,
                                         ),
                                         textAlign: pw.TextAlign.center),
-                                    pw.Text('UnLoaded Date : 21-08-2023   ',
+                                    if(loadingUnloadingCharge[index].text!='0')pw.Text('Load/Unload:${loadingUnloadingCharge[index].text}',
                                         style: pw.TextStyle(
-                                          fontSize: 10,
+                                          fontSize: 11,
+                                        ),
+                                        textAlign: pw.TextAlign.center),
+                                    pw.Text('Reported Date : ${BillsLRsData[index]['reported_date'].toString()} ',
+                                        style: pw.TextStyle(
+                                          fontSize: 11,
+                                        ),
+                                        textAlign: pw.TextAlign.center),
+                                    pw.Text('UnLoaded Date :${BillsLRsData[index]['unloaded_date'].toString()} ',
+                                        style: pw.TextStyle(
+                                          fontSize: 11,
                                         ),
                                         textAlign: pw.TextAlign.center)
                                   ]),
@@ -363,65 +396,65 @@ Future<void> generateBillAndPrint({
                                       color: PdfColors.black, width: 1.0),
                                   children: [
                                     pw.TableRow(children: [
-                                      pw.Text('Freight Total (A)',
+                                      pw.Text(' Freight Total (A)',
                                           style: pw.TextStyle(
                                               fontWeight:
                                               pw.FontWeight.bold)),
-                                      pw.Text('72300 ',
+                                      pw.Text('$totalFreightAmount ',
                                           textAlign: pw.TextAlign.right)
                                     ]),
                                     pw.TableRow(children: [
                                       pw.Text(
-                                          'A 01 - Detention in warehouse/Halting'),
-                                      pw.Text('0 ',
+                                          ' A 01 - Detention in warehouse/Halting'),
+                                      pw.Text('$detentionInWarehouse ',
                                           style: pw.TextStyle(),
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                     pw.TableRow(children: [
                                       pw.Text(
-                                          'A 02 - Detention for Direct Billing'),
-                                      pw.Text('0 ',
+                                          ' A 02 - Detention for Direct Billing'),
+                                      pw.Text('$directBillingTotal ',
                                           style: pw.TextStyle(),
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                     pw.TableRow(children: [
-                                      pw.Text('A 03 - Toll Tax'),
-                                      pw.Text('0 ',
+                                      pw.Text(' A 03 - Toll Tax'),
+                                      pw.Text('$tollTaxTotal ',
                                           style: pw.TextStyle(),
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                     pw.TableRow(children: [
-                                      pw.Text('A 04 - Unloading Charge'),
-                                      pw.Text('0 ',
-                                          style: pw.TextStyle(),
-                                          textAlign: pw.TextAlign.right),
-                                    ]),
-                                    pw.TableRow(children: [
-                                      pw.Text(
-                                          'A 05 - Multipoint Load/Unloading'),
-                                      pw.Text('0 ',
-                                          style: pw.TextStyle(),
-                                          textAlign: pw.TextAlign.right),
-                                    ]),
-                                    pw.TableRow(children: [
-                                      pw.Text('A 06 - Incentive'),
-                                      pw.Text('0 ',
+                                      pw.Text(' A 04 - Unload/unload Charge'),
+                                      pw.Text('$loadingUnloadingTotal ',
                                           style: pw.TextStyle(),
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                     pw.TableRow(children: [
                                       pw.Text(
-                                          'A 07 - Freight Adjustment Addition'),
-                                      pw.Text('0 ',
+                                          ' A 05 - Multipoint Load/Unloading'),
+                                      pw.Text('$multiLoadUnloadTotal ',
                                           style: pw.TextStyle(),
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                     pw.TableRow(children: [
-                                      pw.Text('Addn Total (B)',
+                                      pw.Text(' A 06 - Incentive'),
+                                      pw.Text('$incentiveTotal ',
+                                          style: pw.TextStyle(),
+                                          textAlign: pw.TextAlign.right),
+                                    ]),
+                                    pw.TableRow(children: [
+                                      pw.Text(
+                                          ' A 07 - Freight Adjustment Addition'),
+                                      pw.Text('$freightAdjustmentAdditionTotal ',
+                                          style: pw.TextStyle(),
+                                          textAlign: pw.TextAlign.right),
+                                    ]),
+                                    pw.TableRow(children: [
+                                      pw.Text(' Addn Total (B)',
                                           style: pw.TextStyle(
                                               fontWeight:
                                               pw.FontWeight.bold)),
-                                      pw.Text('0 ',
+                                      pw.Text('$totalFreightAddition ',
                                           style: pw.TextStyle(),
                                           textAlign: pw.TextAlign.right),
                                     ]),
@@ -432,7 +465,7 @@ Future<void> generateBillAndPrint({
                             pw.TableCellVerticalAlignment.middle,
                             children: [
                               pw.Center(
-                                  child: pw.Text('Subtraction ( - )',
+                                  child: pw.Text(' Subtraction ( - )',
                                       style: pw.TextStyle(
                                           fontWeight: pw.FontWeight.bold))),
                               pw.Table(
@@ -440,37 +473,37 @@ Future<void> generateBillAndPrint({
                                       color: PdfColors.black, width: 1.0),
                                   children: [
                                     pw.TableRow(children: [
-                                      pw.Text('S 01 -Late penalty'),
-                                      pw.Text('0 ',
+                                      pw.Text(' S 01 -Late penalty'),
+                                      pw.Text('$latePenaltyTotal ',
                                           textAlign: pw.TextAlign.right)
                                     ]),
                                     pw.TableRow(children: [
-                                      pw.Text('S 02 -Damage'),
-                                      pw.Text('0 ',
+                                      pw.Text(' S 02 -Damage'),
+                                      pw.Text('$damageTotal ',
                                           style: pw.TextStyle(),
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                     pw.TableRow(children: [
                                       pw.Text(
-                                          'S 03 -Freight Adjustment Subtraction'),
-                                      pw.Text('0 ',
+                                          ' S 03 -Freight Adjustment Subtraction'),
+                                      pw.Text('$adjustmentSubtractionTotal ',
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                     pw.TableRow(children: [
-                                      pw.Text('Subtraction Total (C)',
+                                      pw.Text(' Subtraction Total (C)',
                                           style: pw.TextStyle(
                                               fontWeight:
                                               pw.FontWeight.bold)),
-                                      pw.Text('72300 ',
+                                      pw.Text('$totalFreightSubtraction ',
                                           textAlign: pw.TextAlign.right),
                                     ]),
                                   ])
                             ]),
                         pw.TableRow(children: [
-                          pw.Text('Total Bill Amount ( A+B+C )',
+                          pw.Text(' Total Bill Amount ( A+B+C )',
                               style: pw.TextStyle(
                                   fontWeight: pw.FontWeight.bold)),
-                          pw.Text('72300 ',
+                          pw.Text('$grandTotalAmount ',
                               style: pw.TextStyle(
                                   fontWeight: pw.FontWeight.bold),
                               textAlign: pw.TextAlign.right)
@@ -538,4 +571,15 @@ Future<void> generateBillAndPrint({
   await Printing.layoutPdf(
     onLayout: (_) async => pdf.save(),
   );
+
+  // calculateTotal(){
+  //   double sum = 0.0;
+  //   for(int i=0; i<freightAdjustmentSubtractionController.length; i++){
+  //     sum += double.parse(freightAdjustmentSubtractionController[i].text.isEmpty ? '0.0' : freightAdjustmentSubtractionController[i].text);
+  //   }
+  //   setState(() {
+  //     freightAdjustmentSubtractionSum = sum.toString();
+  //     calculateGrandTotalAmount();
+  //   });
+  // }
 }

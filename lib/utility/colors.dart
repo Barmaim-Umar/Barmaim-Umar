@@ -18,6 +18,13 @@ class ThemeColors {
   static Color tableRowColor = Colors.grey.shade100;
   static Color buttonDropdownColor = Colors.grey.shade700;
 
+  ///Vehicle Status Color in Traffic Dashboard
+  static Color unloadedVehicleGrey = Color(0xffbfbfbf);
+  static Color reportedVehicleGreen = Color(0xff66a86a);
+  static Color sendEmptyVehiclepink = Color(0xfff17881);
+  static Color crossingVehicleyellow = Color(0xfffddf5b);
+  static Color divertedVehicleGreyorange = Color(0xffffad34);
+
   /// Dropdown Colors
   static Color dropdownColor = Colors.white;
   static Color dropdownTextColor = Colors.black;

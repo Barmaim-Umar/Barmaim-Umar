@@ -521,7 +521,7 @@ class _ScreensExample extends StatelessWidget {
           case 31:
             return const DashboardTabs();
           case 32:
-            return const Traffic();
+            return  Traffic();
           case 33:
             return const DriverDetails();
           case 34:

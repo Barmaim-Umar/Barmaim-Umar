@@ -463,7 +463,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                           builder: (context, buttonProvider, child) {
                             return InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 500),
@@ -480,7 +480,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                           builder: (context, buttonProvider, child) {
                             return InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 500),
@@ -499,7 +499,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                               // onTap:() => buttonProvider.startJumping(),
                               child: InkWell(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
                                 },
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 500),
@@ -515,14 +515,14 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                         // Vehicle Without Driver
                         InkWell(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
                             },
                             child: FormWidgets().containerWidget('Vehicle Without Driver', '98', ThemeColors.primaryColor)),
 
                         // Vehicle in Maintenance
                         InkWell(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
                             },
                             child: FormWidgets().containerWidget('Vehicle in Maintenance', '98', ThemeColors.primaryColor)),
 
@@ -533,7 +533,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                               // onTap:() => buttonProvider.startJumping(),
                               child: InkWell(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
                                 },
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 500),

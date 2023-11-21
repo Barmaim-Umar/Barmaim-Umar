@@ -73,6 +73,7 @@ class _AdvanceReportState extends State<AdvanceReport>
           freshLoad2 = 0;
         });
       }
+      print('gfdasdoshfj:$advCashTransactionList');
     });
   }
 

@@ -1,10 +1,10 @@
 import 'package:pfc/utility/styles.dart';
 
 class GlobalVariable{
-  static String baseURL = 'http://192.168.1.68:$accountPort';
-  static String trafficBaseURL = 'http://192.168.1.68:3000/';
+  static String baseURL = 'http://192.168.5.100:$accountPort';
+  static String trafficBaseURL = 'http://192.168.5.100:3000/';
   static String accountPort = '3001/';
-  static String billingBaseURL = 'http://192.168.1.68:3002/';
+  static String billingBaseURL = 'http://192.168.5.100:3002/';
 
   static List<dynamic> dashboardHeaders =[];
   static int userId = 0;
