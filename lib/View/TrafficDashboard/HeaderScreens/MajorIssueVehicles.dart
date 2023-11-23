@@ -158,6 +158,7 @@ class _MajorIssuesVehiclesState extends State<MajorIssuesVehicles> {
                   },
                   vehicleNumber: 'MH20 CP 2058',
                   companyName: 'T & D Galiakot Containers',
+                  LrNO: '56795',
                   vehicleStatus: 'Reported',
                   driverName: 'Babar Azam',
                   fromLocation: 'Auranagabad',

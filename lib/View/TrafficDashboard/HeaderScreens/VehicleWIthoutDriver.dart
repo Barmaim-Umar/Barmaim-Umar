@@ -17,17 +17,17 @@ import 'dart:math';
 import 'package:pfc/utility/utility.dart';
 import 'package:http/http.dart' as http;
 
-class VehicleInMaintainance extends StatefulWidget {
-  const VehicleInMaintainance({Key? key}) : super(key: key);
+class VehicleWithoutDriver extends StatefulWidget {
+  const VehicleWithoutDriver({Key? key}) : super(key: key);
 
   @override
-  State<VehicleInMaintainance> createState() => _VehicleInMaintainanceState();
+  State<VehicleWithoutDriver> createState() => _VehicleWithoutDriverState();
 }
 
 List<String> entriesDropdownList = ["10", "20", "30", "40"];
 List ledgerList = [];
 
-class _VehicleInMaintainanceState extends State<VehicleInMaintainance> with Utility {
+class _VehicleWithoutDriverState extends State<VehicleWithoutDriver> with Utility {
 
   // String ledgerDropdownValue = ledgerList.first;
   String entriesDropdownValue = entriesDropdownList.first;
@@ -119,7 +119,7 @@ class _VehicleInMaintainanceState extends State<VehicleInMaintainance> with Util
   Widget build(BuildContext context) {
     // final DataTableSource data = MyData();
     return Scaffold(
-      appBar: UiDecoration.appBar('Vehicle In Maintainance'),
+      appBar: UiDecoration.appBar('Vehicle Without Driver'),
       body: Container(
         margin: const EdgeInsets.all(10),
         decoration: UiDecoration().formDecoration(),
@@ -403,7 +403,7 @@ class _VehicleInMaintainanceState extends State<VehicleInMaintainance> with Util
                 )),
             DataColumn(
                 label: Text(
-                  'Maintainance Date ',
+                  ' Date ',
                   overflow: TextOverflow.ellipsis,
                 )),
 

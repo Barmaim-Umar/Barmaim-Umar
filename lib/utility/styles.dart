@@ -2935,6 +2935,7 @@ class UiDecoration {
 Widget vehicleInfoCardFunc(BuildContext context, {
   required void Function()? onPressedButton,
   required String vehicleNumber,
+  required String LrNO,
   required String companyName,
   required String vehicleStatus,
   required String driverName,
@@ -2989,7 +2990,7 @@ Widget vehicleInfoCardFunc(BuildContext context, {
               color: ThemeColors.whiteColor,
               width: double.infinity,
               alignment: Alignment.center,
-              height: 180,
+              height: 190,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Column(
@@ -3002,6 +3003,15 @@ Widget vehicleInfoCardFunc(BuildContext context, {
                             flex: 2,
                             child:
                             Text(companyName)),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(child: Text('Lr No :')),
+                        Expanded(
+                            flex: 2,
+                            child:
+                            Text(LrNO)),
                       ],
                     ),
                     Row(

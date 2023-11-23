@@ -1,4 +1,6 @@
 import 'package:pfc/View/TrafficDashboard/HeaderScreens/MajorIssueVehicles.dart';
+import 'package:pfc/View/TrafficDashboard/HeaderScreens/VehicleInMaintainance.dart';
+import 'package:pfc/View/TrafficDashboard/HeaderScreens/VehicleWIthoutDriver.dart';
 import 'package:pfc/utility/Widgets/AutoCompleteLocationModel/autocompleteprediction.dart';
 import 'package:pfc/utility/Widgets/AutoCompleteLocationModel/autocompleteresponse.dart';
 import 'package:pfc/utility/Widgets/AutoCompleteLocationModel/locationListTile.dart';
@@ -596,7 +598,7 @@ class _TrafficVehicleInfoState extends State<TrafficVehicleInfo>
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>  Traffic(),
+                                    builder: (context) => const VehicleWithoutDriver(),
                                   ));
                             },
                             child: FormWidgets().containerWidget(
@@ -614,7 +616,7 @@ class _TrafficVehicleInfoState extends State<TrafficVehicleInfo>
                               Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>  Traffic(),
+                                    builder: (context) => const VehicleInMaintainance(),
                                   ));
                             },
                             child: FormWidgets().containerWidget(
