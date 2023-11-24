@@ -11,6 +11,8 @@ import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'package:http/http.dart' as http;
 
+import '../../AlertBoxes.dart';
+
 // ignore: must_be_immutable
 class AdvanceReport extends StatefulWidget {
   int? vehicleId;
@@ -47,89 +49,150 @@ class _AdvanceReportState extends State<AdvanceReport>
   DateTimeRange? _dateRange;
   TextEditingController dateRangeController = TextEditingController();
   TextEditingController search = TextEditingController();
-  var formattedStartDateApi = '';
-  var formattedEndDateApi = '';
+  var formattedStartDateApi = '2000-05-30';
+  var formattedEndDateApi = '2099-01-01';
 
+  // advAtmTransactionListApiFunc() {
+  //   setStateMounted(() {
+  //     advAtmTransactionList.isEmpty ? freshLoad = 1 : freshLoad = 0;
+  //     freshLoad2 = 1;
+  //   });
+  //   advAtmTransactionListApi().then((value) {
+  //     var info = jsonDecode(value);
+  //     if (info['success'] == true) {
+  //       // advAtmTransactionList.clear();
+  //       advAtmTransactionList.addAll(info['data']);
+  //       print('INFo :$info');
+  //       // totalPagesAtm = info['total_pages'];
+  //       // print(currentPageAtm);
+  //       setStateMounted(() {
+  //         freshLoad = 0;
+  //         freshLoad2 = 0;
+  //       });
+  //     } else {
+  //       // AlertBoxes.flushBarErrorMessage(info['message']+' In ATM Advance', context);
+  //       setState(() {
+  //         freshLoad = 0;
+  //         freshLoad2 = 0;
+  //       });
+  //     }
+  //     print('gfdasdoshfj:$advCashTransactionList');
+  //   });
+  // }
   advAtmTransactionListApiFunc() {
     setStateMounted(() {
-      advAtmTransactionList.isEmpty ? freshLoad = 1 : freshLoad = 0;
       freshLoad2 = 1;
     });
-    advAtmTransactionListApi().then((value) {
+    advAtmTransactionListApi(ledgerId: GlobalVariable.vehicleDetails['transporter_ledger_id'].toString(), fromDate: formattedStartDateApi.toString(), toDate: formattedEndDateApi.toString(), vehicleId: GlobalVariable.vehicleDetails['vehicle_id'].toString(), keyword: search.text).then((value) {
       var info = jsonDecode(value);
       if (info['success'] == true) {
-        // advAtmTransactionList.clear();
+        advAtmTransactionList.clear();
         advAtmTransactionList.addAll(info['data']);
-        totalPagesAtm = info['total_pages'];
-        // print(currentPageAtm);
+
+        print("TRUE: \n$info");
+
         setStateMounted(() {
-          freshLoad = 0;
           freshLoad2 = 0;
         });
       } else {
-        // AlertBoxes.flushBarErrorMessage(info['message']+' In ATM Advance', context);
-        setState(() {
-          freshLoad = 0;
+        AlertBoxes.flushBarErrorMessage(info['message'] ?? 'Something went wrong', context);
+        setStateMounted(() {
           freshLoad2 = 0;
         });
       }
-      print('gfdasdoshfj:$advCashTransactionList');
     });
   }
+  // advDieselTransactionListApiFunc() {
+  //   setStateMounted(() {
+  //     advDieselTransactionList.isEmpty ? freshLoad = 1 : freshLoad = 0;
+  //     freshLoad2 = 1;
+  //   });
+  //   advDieselTransactionListApi().then((value) {
+  //     var info = jsonDecode(value);
+  //     if (info['success'] == true) {
+  //       // advAtmTransactionList.clear();
+  //       advDieselTransactionList.addAll(info['data']);
+  //       totalPagesDiesel = info['total_pages'];
+  //       setStateMounted(() {
+  //         freshLoad = 0;
+  //         freshLoad2 = 0;
+  //       });
+  //     } else {
+  //       // AlertBoxes.flushBarErrorMessage(info['message']+' In DIESEL Advance', context);
+  //       setState(() {
+  //         freshLoad = 0;
+  //         freshLoad2 = 0;
+  //       });
+  //     }
+  //   });
+  // }
 
-  advDieselTransactionListApiFunc() {
-    setStateMounted(() {
-      advDieselTransactionList.isEmpty ? freshLoad = 1 : freshLoad = 0;
-      freshLoad2 = 1;
-    });
-    advDieselTransactionListApi().then((value) {
+
+  advDieselTransactionListApiFunc(){
+    setStateMounted(() {freshLoad2 = 1;});
+    advDieselTransactionListApi(
+        ledgerId: GlobalVariable.vehicleDetails['transporter_ledger_id'].toString(),
+        fromDate: formattedStartDateApi.toString(),
+        toDate: formattedEndDateApi.toString(),
+        vehicleId:GlobalVariable.vehicleDetails['vehicle_id'].toString(),
+        keyword: search.text).then((value) {
       var info = jsonDecode(value);
-      if (info['success'] == true) {
-        // advAtmTransactionList.clear();
+      if(info['success']==true){
+        advDieselTransactionList.clear();
         advDieselTransactionList.addAll(info['data']);
-        totalPagesDiesel = info['total_pages'];
-        setStateMounted(() {
-          freshLoad = 0;
-          freshLoad2 = 0;
-        });
-      } else {
-        // AlertBoxes.flushBarErrorMessage(info['message']+' In DIESEL Advance', context);
-        setState(() {
-          freshLoad = 0;
-          freshLoad2 = 0;
-        });
+        setStateMounted(() {freshLoad2 = 0;});
+      }else{
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+        setStateMounted(() {freshLoad2 = 0;});
       }
     });
   }
-
-  advCashTransactionListApiFunc() {
-    setStateMounted(() {
-      advCashTransactionList.isEmpty ? freshLoad = 1 : freshLoad = 0;
-      freshLoad2 = 1;
-    });
-    advCashTransactionListApi().then((value) {
+  // advCashTransactionListApiFunc() {
+  //   setStateMounted(() {
+  //     advCashTransactionList.isEmpty ? freshLoad = 1 : freshLoad = 0;
+  //     freshLoad2 = 1;
+  //   });
+  //   advCashTransactionListApi().then((value) {
+  //     var info = jsonDecode(value);
+  //     if (info['success'] == true) {
+  //       // advAtmTransactionList.clear();
+  //       advCashTransactionList.addAll(info['data']);
+  //       totalPagesCash = info['total_pages'];
+  //       setStateMounted(() {
+  //         freshLoad = 0;
+  //         freshLoad2 = 0;
+  //       });
+  //     } else {
+  //       // AlertBoxes.flushBarErrorMessage(info['message']+' In CASH Advance', context);
+  //       setState(() {
+  //         freshLoad = 0;
+  //         freshLoad2 = 0;
+  //       });
+  //     }
+  //   });
+  // }
+  /// Advance cash
+  advCashTransactionListApiFunc(){
+    setStateMounted(() {freshLoad2 = 1;});
+    advCashTransactionListApi(
+        ledgerId: GlobalVariable.vehicleDetails['transporter_ledger_id'].toString(),
+        fromDate: formattedStartDateApi.toString(),
+        toDate: formattedEndDateApi.toString(),
+        vehicleId:GlobalVariable.vehicleDetails['vehicle_id'].toString(),
+        keyword: search.text).then((value) {
       var info = jsonDecode(value);
-      if (info['success'] == true) {
-        // advAtmTransactionList.clear();
+      if(info['success']==true){
+        advCashTransactionList.clear();
         advCashTransactionList.addAll(info['data']);
-        totalPagesCash = info['total_pages'];
-        setStateMounted(() {
-          freshLoad = 0;
-          freshLoad2 = 0;
-        });
-      } else {
-        // AlertBoxes.flushBarErrorMessage(info['message']+' In CASH Advance', context);
-        setState(() {
-          freshLoad = 0;
-          freshLoad2 = 0;
-        });
+        setStateMounted(() {freshLoad2 = 0;});
+      }else{
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+        setStateMounted(() {freshLoad2 = 0;});
       }
     });
   }
-
   @override
   void initState() {
-    // TODO: implement initState
     advAtmTransactionListApiFunc();
     advDieselTransactionListApiFunc();
     advCashTransactionListApiFunc();
@@ -242,7 +305,7 @@ class _AdvanceReportState extends State<AdvanceReport>
                 Expanded(
                   child: TabBarView(controller: _tabController, children: [
                     /// 1
-                    freshLoad == 1
+                    freshLoad2 == 1
                         ? const Center(
                             child: CircularProgressIndicator(),
                           )
@@ -333,7 +396,7 @@ class _AdvanceReportState extends State<AdvanceReport>
                               ),
 
                     /// 2
-                    freshLoad == 1
+                    freshLoad2 == 1
                         ? const Center(
                             child: CircularProgressIndicator(),
                           )
@@ -425,7 +488,7 @@ class _AdvanceReportState extends State<AdvanceReport>
                               ),
 
                     /// 3
-                    freshLoad == 1
+                    freshLoad2 == 1
                         ? const Center(
                             child: CircularProgressIndicator(),
                           )
@@ -555,29 +618,104 @@ class _AdvanceReportState extends State<AdvanceReport>
     }
   }
 
-  Future advAtmTransactionListApi() async {
-    var headers = {'token': Auth.token};
-    var url = Uri.parse(
-        '${GlobalVariable.trafficBaseURL}apis/GetATM?vehicle_id=${widget.vehicleId}&limit=10&page=$currentPageAtm&from_date=$formattedStartDateApi&to_date=$formattedEndDateApi&keyword=${search.text}');
+  // Future advAtmTransactionListApi() async {
+  //   var headers = {'token': Auth.token};
+  //   var url = Uri.parse(
+  //       '${GlobalVariable.baseURL2}${GlobalVariable.port3005}Trip/Accounts/GetATMAdvances?ledger_id=0&from_date=2023-01-20&to_date=2023-01-25&vehicle_id=0');
+  //   var response = await http.get(url, headers: headers);
+  //   return response.body.toString();
+  // }
+  // GetATMAdvances
+  Future advAtmTransactionListApi({
+    required String ledgerId,
+    required String fromDate,
+    required String toDate,
+    required String vehicleId,
+    String keyword = '',
+  })async{
+    var url = Uri.parse("${GlobalVariable.baseURL2}${GlobalVariable.port3005}Trip/Accounts/GetATMAdvances?"
+        "ledger_id=$ledgerId&"
+        "from_date=$fromDate&"
+        "to_date=$toDate&"
+        "vehicle_id=$vehicleId&"
+        "keyword=$keyword");
+    var headers = {
+      'token': Auth.token
+    };
+    print("query: $url");
+    var response = await http.get(url, headers: headers);
+    print("response: ${response.body}");
+    return response.body.toString();
+  }
+
+  // GetDieselAdvances
+  Future advDieselTransactionListApi({
+    required String ledgerId,
+    required String fromDate,
+    required String toDate,
+    required String vehicleId,
+    String keyword = '',
+  }) async {
+    var url = Uri.parse("${GlobalVariable.baseURL2}${GlobalVariable.port3005}Trip/Accounts/GetDieselAdvances?"
+        "ledger_id=$ledgerId&"
+        "from_date=$fromDate&"
+        "to_date=$toDate&"
+        "vehicle_id=$vehicleId&"
+        "keyword=$keyword");
+    var headers = {
+      'token': Auth.token
+    };
     var response = await http.get(url, headers: headers);
     return response.body.toString();
   }
 
-  Future advDieselTransactionListApi() async {
-    var headers = {'token': Auth.token};
-    var url = Uri.parse(
-        '${GlobalVariable.trafficBaseURL}apis/GetBPCL?vehicle_id=${widget.vehicleId}&limit=10&page=$currentPageDiesel&from_date=$formattedStartDateApi&to_date=$formattedEndDateApi&keyword=${search.text}');
+  // GetCashAdvances
+  Future advCashTransactionListApi({
+    required String ledgerId,
+    required String fromDate,
+    required String toDate,
+    required String vehicleId,
+    String keyword = '',
+  }) async {
+    var url = Uri.parse("${GlobalVariable.baseURL2}${GlobalVariable.port3005}Trip/Accounts/GetCashAdvances?"
+        "ledger_id=$ledgerId&"
+        "from_date=$fromDate&"
+        "to_date=$toDate&"
+        "vehicle_id=$vehicleId&"
+        "keyword=$keyword");
+    var headers = {
+      'token': Auth.token
+    };
     var response = await http.get(url, headers: headers);
     return response.body.toString();
   }
 
-  Future advCashTransactionListApi() async {
-    var headers = {'token': Auth.token};
-    var url = Uri.parse(
-        '${GlobalVariable.trafficBaseURL}apis/GetCash?vehicle_id=${widget.vehicleId}&limit=10&page=$currentPageCash&from_date=$formattedStartDateApi&to_date=$formattedEndDateApi&keyword=${search.text}');
-    var response = await http.get(url, headers: headers);
-    return response.body.toString();
-  }
+
+
+
+
+
+
+
+  // Future advDieselTransactionListApi() async {
+  //   var headers = {'token': Auth.token};
+  //   var url = Uri.parse(
+  //       '${GlobalVariable.trafficBaseURL}apis/GetBPCL?vehicle_id=${widget.vehicleId}&limit=10&page=$currentPageDiesel&from_date=$formattedStartDateApi&to_date=$formattedEndDateApi&keyword=${search.text}');
+  //
+  //   var response = await http.get(url, headers: headers);
+  //
+  //   return response.body.toString();
+  // }
+
+  // Future advCashTransactionListApi() async {
+  //   var headers = {'token': Auth.token};
+  //   var url = Uri.parse(
+  //       '${GlobalVariable.trafficBaseURL}apis/GetCash?vehicle_id=${widget.vehicleId}&limit=10&page=$currentPageCash&from_date=$formattedStartDateApi&to_date=$formattedEndDateApi&keyword=${search.text}');
+  //   print('hijadhfh:$url');
+  //   var response = await http.get(url, headers: headers);
+  //   print('responssns:   ${response.body}');
+  //   return response.body.toString();
+  // }
 
   void setStateMounted(VoidCallback fn) {
     if (mounted) {

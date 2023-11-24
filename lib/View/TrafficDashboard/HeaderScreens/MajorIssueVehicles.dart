@@ -202,6 +202,7 @@ class _MajorIssuesVehiclesState extends State<MajorIssuesVehicles> {
       'date': fromDateApi.text.toString()
     };
     var response = await http.post(url, headers: headers, body: body);
+
     return response.body.toString();
   }
 }

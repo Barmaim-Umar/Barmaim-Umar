@@ -10,8 +10,22 @@ import 'package:pfc/utility/styles.dart';
 import 'package:provider/provider.dart';
 
 class OrderVehicleInfo extends StatefulWidget {
-  const OrderVehicleInfo({Key? key}) : super(key: key);
-
+  const OrderVehicleInfo({Key? key,
+    this.partyName,
+    this.fromCity,
+    this.toCity,
+    this.noOfMv,
+    this.assignedMv,
+    this.entryBy,
+    this.orderId = '0'
+  }) : super(key: key);
+  final ValueNotifier<String>? partyName;
+  final ValueNotifier<String>? fromCity;
+  final ValueNotifier<String>? toCity;
+  final ValueNotifier<String>? noOfMv;
+  final ValueNotifier<String>? assignedMv;
+  final ValueNotifier<String>? entryBy;
+  final String orderId;
   @override
   State<OrderVehicleInfo> createState() => _OrderVehicleInfoState();
 }
@@ -463,7 +477,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                           builder: (context, buttonProvider, child) {
                             return InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 500),
@@ -480,7 +494,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                           builder: (context, buttonProvider, child) {
                             return InkWell(
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
                               },
                               child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 500),
@@ -499,7 +513,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                               // onTap:() => buttonProvider.startJumping(),
                               child: InkWell(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
                                 },
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 500),
@@ -515,14 +529,14 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                         // Vehicle Without Driver
                         InkWell(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
                             },
                             child: FormWidgets().containerWidget('Vehicle Without Driver', '98', ThemeColors.primaryColor)),
 
                         // Vehicle in Maintenance
                         InkWell(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
                             },
                             child: FormWidgets().containerWidget('Vehicle in Maintenance', '98', ThemeColors.primaryColor)),
 
@@ -533,7 +547,7 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                               // onTap:() => buttonProvider.startJumping(),
                               child: InkWell(
                                 onTap: () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) =>    Traffic(),));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const   Traffic(),));
                                 },
                                 child: AnimatedContainer(
                                   duration: const Duration(milliseconds: 500),
@@ -610,7 +624,15 @@ class _OrderVehicleInfoState extends State<OrderVehicleInfo> with TickerProvider
                             height: 5,
                           ),
                           // VehicleDetails
-                          const OrderVehicleDetails(),
+                          OrderVehicleDetails(
+                              partyName: widget.partyName,
+                              fromCity: widget.fromCity,
+                              toCity: widget.toCity,
+                              noOfMv: widget.noOfMv,
+                              assignedMv: widget.assignedMv,
+                              entryBy:  widget.entryBy,
+                              orderId: widget.orderId,
+                          ),
 
                           /// Routes | Driver Statistics
                           // Expanded(

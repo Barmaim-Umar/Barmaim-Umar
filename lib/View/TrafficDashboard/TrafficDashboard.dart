@@ -131,7 +131,7 @@ class _TrafficDashboardState extends State<TrafficDashboard>
           freshLoad = 1;
         });
       }
-      print('978546132546 vehicle djf:     $vehicleDetailList');
+      // print('978546132546 vehicle djf:     $vehicleDetailList');
     });
   }
 
@@ -168,9 +168,7 @@ class _TrafficDashboardState extends State<TrafficDashboard>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _buttonProvider = Provider.of<ButtonProvider>(context, listen: false);
       _buttonProvider.startJumping();
-      // print('object yyyyyyy :    $normalVehicleList');
-      // print('object yyyyyyy :    $issueVehicleList');
-      // print('978546132546:     $vehicleDetailList');
+
     });
 
     _animationController =
@@ -458,6 +456,10 @@ class _TrafficDashboardState extends State<TrafficDashboard>
                                                               onTap: () {
                                                                 setStateMounted(
                                                                     () {
+                                                                      print('vehicleData: ${normalVehicleList[index]}');
+
+                                                                      GlobalVariable.vehicleDetails = normalVehicleList[index];
+
                                                                   vehicleId = normalVehicleList[
                                                                           index]
                                                                       [

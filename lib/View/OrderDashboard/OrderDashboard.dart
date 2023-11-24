@@ -1,11 +1,13 @@
+import 'dart:convert';
 import 'dart:math';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pfc/AlertBoxes.dart';
 import 'package:pfc/Provider/AnimationProvider.dart';
 import 'package:pfc/Provider/ProviderOfFragment.dart';
 import 'package:pfc/View/OrderDashboard/OrderVehicleInfo.dart';
 import 'package:pfc/responsive.dart';
+import 'package:pfc/service_wrapper/service_wrapper.dart';
 import 'package:pfc/utility/colors.dart';
 import 'package:pfc/utility/styles.dart';
 import 'package:provider/provider.dart';
@@ -21,7 +23,6 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
   late AnimationController _animationController;
   int iIndex = 0;
   late final TabController _tabController = TabController(length: 2, vsync: this, initialIndex: iIndex);
-
   List<String> companyNamesList = [
     "Aqua Plast",
     "Jamuna Transport",
@@ -98,13 +99,72 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
     'Vadodara',
     'Valsad',
   ];
-
   late ButtonProvider _buttonProvider;
   FragmentsNotifier changeFragmentVariable = FragmentsNotifier();
+  List ordersList = [];
+  int freshLoad1 = 0;
+  int limit = 30;
+  int page = 1;
+  String keyword = '';
+  TextEditingController searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  bool isLoading = false;
+  ValueNotifier<String> partyName = ValueNotifier<String>("");
+  ValueNotifier<String> fromCity = ValueNotifier<String>("");
+  ValueNotifier<String> toCity = ValueNotifier<String>("");
+  ValueNotifier<String> noOfMv = ValueNotifier<String>("");
+  ValueNotifier<String> assignedMv = ValueNotifier<String>("");
+  ValueNotifier<String> entryBy = ValueNotifier<String>("");
+  String orderId = '';
+  ValueNotifier<int> isSelected = ValueNotifier(-1);
+  int currentIndex = 0;
+
+  /// APIs
+  getOrdersApiFunc(){
+    setStateMounted(() => {freshLoad1 = 1, page = 1});
+    ServiceWrapper().getOrdersApi(
+        limit: '$limit',
+        page: '$page',
+        keyword: searchController.text,
+        fromDate: '',
+        toDate: '').then((value) {
+      var info = jsonDecode(value);
+      if(info['success'] == true){
+        ordersList.clear();
+        ordersList.addAll(info['data']);
+        setStateMounted(() => freshLoad1 = 0);
+      }else{
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+        setStateMounted(() => freshLoad1 = 0);
+      }
+    });
+  }
+
+  // calling when user scrolls to the end of the list
+  getMoreOrders(){
+    if(!isLoading){
+      setStateMounted(() => isLoading = true);
+    }
+    ServiceWrapper().getOrdersApi(
+        limit: '$limit',
+        page: '$page',
+        keyword: searchController.text,
+        fromDate: '',
+        toDate: '').then((value) {
+      var info = jsonDecode(value);
+      if(info['success'] == true){
+        ordersList.addAll(info['data']);
+        setStateMounted(() => {freshLoad1 = 0, isLoading = false});
+      }else{
+        AlertBoxes.flushBarErrorMessage(info['message'], context);
+        setStateMounted(() => {freshLoad1 = 0, isLoading = false});
+      }
+    });
+  }
 
   @override
   void initState() {
-
+    getOrdersApiFunc();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _buttonProvider = Provider.of<ButtonProvider>(context, listen: false);
       _buttonProvider.startJumping();
@@ -112,6 +172,13 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
 
     _animationController = AnimationController(vsync: this, duration: const Duration(seconds: 1));
     _animationController.repeat(reverse: true);
+
+    _scrollController.addListener(() {
+      if(_scrollController.position.pixels == _scrollController.position.maxScrollExtent){
+        page++;
+        getMoreOrders();
+      }
+    });
     super.initState();
 
   }
@@ -146,151 +213,6 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  /// Top Indicators
-                  // Row(
-                  //   children: [
-                  //
-                  //     // Late Delivery
-                  //     Expanded(
-                  //       child: Consumer<ButtonProvider>(
-                  //         builder: (context, buttonProvider, child) {
-                  //           return AnimatedContainer(
-                  //             duration: const Duration(milliseconds: 500),
-                  //             curve: Curves.easeInOut,
-                  //             transform: buttonProvider.isJumping ? Matrix4.translationValues(00, -5, 00) : Matrix4.translationValues(00, 00, 00),
-                  //             child:   FormWidgets().containerWidget('Late Delivery', '20', ThemeColors.orangeColor),
-                  //           );
-                  //         },
-                  //       ),
-                  //     ),
-                  //
-                  //     // Late Loading
-                  //     Expanded(
-                  //       child: Consumer<ButtonProvider>(
-                  //         builder: (context, buttonProvider, child) {
-                  //           return AnimatedContainer(
-                  //             duration: const Duration(milliseconds: 500),
-                  //             curve: Curves.easeInOut,
-                  //             transform: buttonProvider.isJumping ? Matrix4.translationValues(00, 0, 00) : Matrix4.translationValues(00, -5, 00),
-                  //             child:   FormWidgets().containerWidget('Late Loading', '20', ThemeColors.greenColor),
-                  //           );
-                  //         },
-                  //       ),
-                  //     ),
-                  //
-                  //     // Pending LR
-                  //     Expanded(
-                  //       child: Consumer<ButtonProvider>(
-                  //         builder: (context, buttonProvider, child) {
-                  //           return GestureDetector(
-                  //             // onTap:() => buttonProvider.startJumping(),
-                  //             child: AnimatedContainer(
-                  //               duration: const Duration(milliseconds: 500),
-                  //               curve: Curves.easeInOut,
-                  //               transform: buttonProvider.isJumping ? Matrix4.translationValues(00, -5, 00) : Matrix4.translationValues(00, 00, 00),
-                  //               child:   FormWidgets().containerWidget('Pending LR', '20', ThemeColors.redColor),
-                  //             ),
-                  //           );
-                  //         },
-                  //       ),
-                  //     ),
-                  //
-                  //     // Vehicle Without Driver
-                  //     Expanded(
-                  //       child: FormWidgets().containerWidget('Vehicle Without Driver', '98', ThemeColors.primaryColor),
-                  //     ),
-                  //
-                  //     // Vehicle in Maintenance
-                  //     Expanded(
-                  //       child: FormWidgets().containerWidget('Vehicle in Maintenance', '98', ThemeColors.primaryColor),
-                  //     ),
-                  //
-                  //     // Major Issue
-                  //     Expanded(
-                  //       child: Consumer<ButtonProvider>(
-                  //         builder: (context, buttonProvider, child) {
-                  //           return GestureDetector(
-                  //             // onTap:() => buttonProvider.startJumping(),
-                  //             child: AnimatedContainer(
-                  //               duration: const Duration(milliseconds: 500),
-                  //               curve: Curves.easeInOut,
-                  //               transform: buttonProvider.isJumping ? Matrix4.translationValues(00, 0, 00) : Matrix4.translationValues(00, -5, 00),
-                  //               child:   FormWidgets().containerWidget('Major Issue', '20', ThemeColors.darkRedColor),
-                  //             ),
-                  //           );
-                  //         },
-                  //       ),
-                  //     ),
-                  //
-                  //   ],
-                  // ),
-
-                  /// Top Indicators
-                  // Wrap(
-                  //   children: [
-                  //     // Late Delivery
-                  //     Consumer<ButtonProvider>(
-                  //       builder: (context, buttonProvider, child) {
-                  //         return AnimatedContainer(
-                  //           duration: const Duration(milliseconds: 500),
-                  //           curve: Curves.easeInOut,
-                  //           // transform: buttonProvider.isJumping ? Matrix4.translationValues(00, -5, 00) : Matrix4.translationValues(00, 00, 00),
-                  //           child:   FormWidgets().containerWidget('Late Delivery', '20', ThemeColors.primaryColor),
-                  //         );
-                  //       },
-                  //     ),
-                  //
-                  //     // Late Loading
-                  //     Consumer<ButtonProvider>(
-                  //       builder: (context, buttonProvider, child) {
-                  //         return AnimatedContainer(
-                  //           duration: const Duration(milliseconds: 500),
-                  //           curve: Curves.easeInOut,
-                  //           // transform: buttonProvider.isJumping ? Matrix4.translationValues(00, 0, 00) : Matrix4.translationValues(00, -5, 00),
-                  //           child:   FormWidgets().containerWidget('Late Loading', '20', ThemeColors.primaryColor),
-                  //         );
-                  //       },
-                  //     ),
-                  //
-                  //     // Pending LR
-                  //     Consumer<ButtonProvider>(
-                  //       builder: (context, buttonProvider, child) {
-                  //         return GestureDetector(
-                  //           // onTap:() => buttonProvider.startJumping(),
-                  //           child: AnimatedContainer(
-                  //             duration: const Duration(milliseconds: 500),
-                  //             curve: Curves.easeInOut,
-                  //             // transform: buttonProvider.isJumping ? Matrix4.translationValues(00, -5, 00) : Matrix4.translationValues(00, 00, 00),
-                  //             child:   FormWidgets().containerWidget('Pending LR', '20', ThemeColors.primaryColor),
-                  //           ),
-                  //         );
-                  //       },
-                  //     ),
-                  //
-                  //     // Vehicle Without Driver
-                  //     FormWidgets().containerWidget('Vehicle Without Driver', '98', ThemeColors.primaryColor),
-                  //
-                  //     // Vehicle in Maintenance
-                  //     FormWidgets().containerWidget('Vehicle in Maintenance', '98', ThemeColors.primaryColor),
-                  //
-                  //     // Major Issue
-                  //     Consumer<ButtonProvider>(
-                  //       builder: (context, buttonProvider, child) {
-                  //         return GestureDetector(
-                  //           // onTap:() => buttonProvider.startJumping(),
-                  //           child: AnimatedContainer(
-                  //             duration: const Duration(milliseconds: 500),
-                  //             curve: Curves.easeInOut,
-                  //             // transform: buttonProvider.isJumping ? Matrix4.translationValues(00, 0, 00) : Matrix4.translationValues(00, -5, 00),
-                  //             child:   FormWidgets().containerWidget('Major Issue', '20', ThemeColors.darkRedColor),
-                  //           ),
-                  //         );
-                  //       },
-                  //     ),
-                  //
-                  //   ],
-                  // ),
 
                   const SizedBox(height: 1,),
 
@@ -335,6 +257,13 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
                                     Padding(
                                       padding: const EdgeInsets.only(top: 2, bottom: 2 , left: 2),
                                       child: TextFormField(
+                                        controller: searchController,
+                                        onChanged: (value) {
+                                          if(_tabController.index == 0){
+                                            getOrdersApiFunc();
+                                          }
+
+                                        },
                                         style: const TextStyle(fontSize: 15),
                                         decoration: UiDecoration().outlineTextFieldDecoration("Search",Colors.grey,
                                             icon:  const Icon(CupertinoIcons.search,color: Colors.grey,)),
@@ -347,66 +276,103 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
                                         child: TabBarView(controller: _tabController, children: [
                                           // Order List Tab
                                           ListView.builder(
+                                            controller: _scrollController,
                                             shrinkWrap: true,
-                                            itemCount: 20,
+                                            itemCount: ordersList.length + 1, // Add one for the loading indicator,
                                             itemBuilder: (context, index) {
-                                              return Container(
-                                                margin: const EdgeInsets.only(top: 5, bottom: 5, right: 2),
-                                                decoration: BoxDecoration(border: Border.all(color: Colors.black12), borderRadius: BorderRadius.circular(10)),
-                                                child: ListTile(
-                                                  mouseCursor: SystemMouseCursors.click,
-                                                  title: const Text(
-                                                    'Party Name',
-                                                    style:  TextStyle(color: Colors.black),
-                                                  ),
-                                                  subtitle: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        children: [
-                                                          Expanded(
-                                                            flex: 3,
-                                                            child: Text(
-                                                              companyNamesList[index],
-                                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, overflow: TextOverflow.clip),
-                                                            ),
+                                              if(index < ordersList.length){
+                                                return ValueListenableBuilder(
+                                                  valueListenable: isSelected,
+                                                  builder: (context, value, child) {
+                                                    return Container(
+                                                      margin: const EdgeInsets.only(top: 5, bottom: 5, right: 2),
+                                                      decoration: BoxDecoration(
+                                                          border: Border.all(
+                                                              color: value == index  ? ThemeColors.primary : Colors.grey.shade300
                                                           ),
-                                                          Expanded(
-                                                            child: Text(
-                                                              cityNamesList[index],
-                                                              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),textAlign: TextAlign.end,
-                                                            ),
-                                                          ),
-                                                        ],
+                                                          borderRadius: BorderRadius.circular(10)
                                                       ),
-                                                      Row(
-                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                        children: const [
-                                                          Expanded(
-                                                            child: Text(
-                                                              "Order Date: 20-12-2022",
-                                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+                                                      child: ListTile(
+                                                        onTap: () {
+                                                          partyName.value = ordersList[index]['ledger_title'].toString();
+                                                          fromCity.value = ordersList[index]['from_location'].toString();
+                                                          toCity.value = ordersList[index]['to_location'].toString();
+                                                          noOfMv.value = ordersList[index]['no_of_vehicles'].toString();
+                                                          assignedMv.value = ordersList[index]['assigned_vehicles'].toString();
+                                                          entryBy.value = ordersList[index]['entry_by'].toString();
+                                                          orderId = ordersList[index]['order_id'].toString();
+                                                          currentIndex = index;
+                                                          isSelected.value = index;
+                                                          print(currentIndex);
+                                                        },
+                                                        mouseCursor: SystemMouseCursors.click,
+                                                        style: ListTileStyle.drawer,
+                                                        title: const Text(
+                                                          'Party Name',
+                                                          style:  TextStyle(color: Colors.black),
+                                                        ),
+                                                        subtitle: Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Row(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                              children: [
+                                                                Expanded(
+                                                                  flex: 3,
+                                                                  child: Text(
+                                                                    ordersList[index]['ledger_title'] ?? "Gahana Ram_null",
+                                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500, overflow: TextOverflow.clip),
+                                                                  ),
+                                                                ),
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    ordersList[index]['to_location'] ?? "Pune _null",
+                                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold),textAlign: TextAlign.end,
+                                                                  ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                          ),
+                                                            Row(
+                                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    "Order Date: ${ordersList[index]['order_date'] ?? "30-12-2022"}",
+                                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+                                                                  ),
+                                                                ),
 
-                                                          Expanded(
-                                                            child: Text(
-                                                              "Entry By: Parvez",
-                                                              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+                                                                Expanded(
+                                                                  child: Text(
+                                                                    "Entry By: ${ordersList[index]['entry_by'] ?? "Adil _null"}",
+                                                                    style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w500),
+                                                                  ),
+                                                                ),
+
+                                                              ],
                                                             ),
-                                                          ),
-
-                                                        ],
+                                                          ],
+                                                        ),
+                                                        trailing: const Icon(
+                                                          Icons.arrow_right_sharp,
+                                                          color: ThemeColors.darkBlack,
+                                                        ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                  trailing: const Icon(
-                                                    Icons.arrow_right_sharp,
-                                                    color: ThemeColors.darkBlack,
-                                                  ),
-                                                ),
-                                              );
+                                                    );
+                                                  }
+                                                );
+                                              }else{
+                                                if(isLoading){
+                                                  return const SizedBox(
+                                                    height: 40,
+                                                    child: Center(
+                                                      child: CircularProgressIndicator(strokeWidth: 2,),
+                                                    ),
+                                                  );
+                                                } else{
+                                                  return const SizedBox();
+                                                }
+                                              }
                                             },
                                           ),
 
@@ -467,9 +433,9 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
                                                           ],
                                                         ),
                                                         // Assign Date and LR Number
-                                                        Row(
+                                                        const Row(
                                                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                          children: const [
+                                                          children: [
                                                             // Assign Date
                                                             Expanded(
                                                               child: Text(
@@ -507,7 +473,15 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
                           const SizedBox(width: 5,),
 
                           /// right panel
-                          const Expanded(flex: 7, child: OrderVehicleInfo()),
+                          Expanded(flex: 7, child: OrderVehicleInfo(
+                            partyName: partyName,
+                            fromCity: fromCity,
+                            toCity: toCity,
+                            noOfMv: noOfMv,
+                            assignedMv: assignedMv,
+                            entryBy: entryBy,
+                            orderId: orderId,
+                          )),
                         ],
                       ),
                     ),
@@ -518,5 +492,11 @@ class _OrderDashboardState extends State<OrderDashboard> with TickerProviderStat
           ),
         );
       });
+  }
+
+  setStateMounted(VoidCallback fn){
+    if(mounted){
+      setState(fn);
+    }
   }
 }
